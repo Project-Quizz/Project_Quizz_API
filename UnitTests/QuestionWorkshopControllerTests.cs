@@ -10,7 +10,7 @@ using Project_Quizz_API.Models.DTOs;
 namespace Project_Quizz_API.UnitTests
 {
     [TestFixture]
-    public class QuestionEditControllerTests
+    public class QuestionWorkshopControllerTests
     {
         private Mock<ApplicationDbContext> _mockContext;
         private QuestionWorkshopController _controller;
