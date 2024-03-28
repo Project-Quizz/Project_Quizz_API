@@ -15,11 +15,11 @@ namespace Project_Quizz_API.Models
         [ForeignKey("Quiz_Question")]
         public int AskedQuestionId { get; set; }
 
-        [ForeignKey("Quiz_Answer")]
+        [ForeignKey("Quiz_Question_Answer")]
         public int GivenAnswerId { get; set; }
 
         public virtual Single_Quiz Single_Quiz { get; set; }
         public virtual Quiz_Question Quiz_Question { get; set; }
-        public virtual Quiz_Question_Answer Quiz_Answer { get; set; }
+        public virtual Quiz_Question_Answer Quiz_Question_Answer { get; set; }
     }
 }

@@ -44,7 +44,7 @@ namespace Project_Quizz_API.Data
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Single_Quiz_Attempt>()
-                .HasOne(a => a.Quiz_Question)
+                .HasOne(a => a.Quiz_Question_Answer)
                 .WithMany()
                 .HasForeignKey(a => a.GivenAnswerId)
                 .OnDelete(DeleteBehavior.NoAction);
