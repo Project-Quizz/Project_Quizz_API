@@ -121,7 +121,6 @@ namespace Project_Quizz_API.Controllers
         }
 
         [HttpDelete]
-        [Route("DeleteQuestion")]
         public IActionResult DeleteQuestion(int questionId)
         {
             var questionFromDb = _context.QuizQuestions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionId);
