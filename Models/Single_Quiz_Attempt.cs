@@ -16,7 +16,9 @@ namespace Project_Quizz_API.Models
         public int AskedQuestionId { get; set; }
 
         [ForeignKey("Quiz_Question_Answer")]
-        public int GivenAnswerId { get; set; }
+        public int? GivenAnswerId { get; set; }
+
+        public DateTime? AnswerDate { get; set; }
 
         public virtual Single_Quiz Single_Quiz { get; set; }
         public virtual Quiz_Question Quiz_Question { get; set; }
