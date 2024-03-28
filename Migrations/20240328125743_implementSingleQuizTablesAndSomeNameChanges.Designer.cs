@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project_Quizz_API.Data;
 
@@ -11,9 +12,11 @@ using Project_Quizz_API.Data;
 namespace Project_Quizz_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240328125743_implementSingleQuizTablesAndSomeNameChanges")]
+    partial class implementSingleQuizTablesAndSomeNameChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,8 +308,6 @@ namespace Project_Quizz_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AskedQuestionId");
-
                     b.HasIndex("GivenAnswerId");
 
                     b.HasIndex("SingleQuizId");
@@ -380,14 +381,14 @@ namespace Project_Quizz_API.Migrations
                 {
                     b.HasOne("Project_Quizz_API.Models.Quiz_Question", "Quiz_Question")
                         .WithMany()
-                        .HasForeignKey("AskedQuestionId")
+                        .HasForeignKey("GivenAnswerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Project_Quizz_API.Models.Quiz_Question_Answer", "Quiz_Question_Answer")
+                    b.HasOne("Project_Quizz_API.Models.Quiz_Question_Answer", "Quiz_Answer")
                         .WithMany()
                         .HasForeignKey("GivenAnswerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Project_Quizz_API.Models.Single_Quiz", "Single_Quiz")
@@ -396,9 +397,9 @@ namespace Project_Quizz_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Quiz_Question");
+                    b.Navigation("Quiz_Answer");
 
-                    b.Navigation("Quiz_Question_Answer");
+                    b.Navigation("Quiz_Question");
 
                     b.Navigation("Single_Quiz");
                 });

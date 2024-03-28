@@ -23,7 +23,7 @@ namespace Project_Quizz_API.Controllers
         [Route("GetQuestion")]
         public IActionResult GetQuestion(int id)
         {
-            Quiz_Question questionFromDb = _context.QuizQuestions.SingleOrDefault(x => x.Id == id);
+            Quiz_Question questionFromDb = _context.Quiz_Questions.SingleOrDefault(x => x.Id == id);
 
             if (questionFromDb == null)
             {
@@ -38,7 +38,7 @@ namespace Project_Quizz_API.Controllers
                 Answers = new List<QuizAnswersDto>()
             };
 
-            var answers = _context.QuizAnswers.Where(x => x.QuestionId == id).ToList();
+            var answers = _context.Quiz_Question_Answers.Where(x => x.QuestionId == id).ToList();
             foreach (var answer in answers)
             {
                 question.Answers.Add(new QuizAnswersDto
@@ -66,19 +66,19 @@ namespace Project_Quizz_API.Controllers
             {
                 QuestionText = questionDto.QuestionText,
                 UserId = questionDto.UserId,
-                Answers = new List<Quiz_Answer>()
+                Answers = new List<Quiz_Question_Answer>()
             };
 
             foreach (var answerDto in questionDto.Answers)
             {
-                question.Answers.Add(new Quiz_Answer
+                question.Answers.Add(new Quiz_Question_Answer
                 {
                     AnswerText = answerDto.AnswerText,
                     IsCorrectAnswer = answerDto.IsCorrectAnswer
                 });
             }
 
-            _context.QuizQuestions.Add(question);
+            _context.Quiz_Questions.Add(question);
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id });
         }
@@ -87,7 +87,7 @@ namespace Project_Quizz_API.Controllers
         [Route("UpdateQuestion")]
         public IActionResult UpdateQuestion(QuizQuestionDto questionDto)
         {
-            var questionFromDb = _context.QuizQuestions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionDto.Id);
+            var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionDto.Id);
             if (questionFromDb == null)
             {
                 return NotFound();
@@ -123,7 +123,7 @@ namespace Project_Quizz_API.Controllers
         [HttpDelete]
         public IActionResult DeleteQuestion(int questionId)
         {
-            var questionFromDb = _context.QuizQuestions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionId);
+            var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionId);
             if (questionFromDb == null)
             {
                 return NotFound();
