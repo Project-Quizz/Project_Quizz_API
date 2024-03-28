@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project_Quizz_API.Models
 {
-    public class Quiz_Answer
+    public class Quiz_Question_Answer
     {
         public int Id { get; set; }
 

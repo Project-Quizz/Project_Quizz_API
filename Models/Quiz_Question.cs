@@ -12,6 +12,6 @@ namespace Project_Quizz_API.Models
         [Required]
         public string UserId {  get; set; } 
 
-        public virtual ICollection<Quiz_Answer> Answers { get; set; }
+        public virtual ICollection<Quiz_Question_Answer> Answers { get; set; }
     }
 }
