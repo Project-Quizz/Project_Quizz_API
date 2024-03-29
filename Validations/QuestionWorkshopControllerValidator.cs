@@ -2,7 +2,7 @@
 
 namespace Project_Quizz_API.Validations
 {
-    public class QuestionEditControllerValidator
+    public class QuestionWorkshopControllerValidator
     {
         public static IEnumerable<string> ValidateQuestion(CreateQuizQuestionDto questionDto)
         {

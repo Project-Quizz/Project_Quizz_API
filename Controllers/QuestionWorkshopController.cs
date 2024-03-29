@@ -56,7 +56,7 @@ namespace Project_Quizz_API.Controllers
         [Route("CreateQuestion")]
         public IActionResult CreateQuestion(CreateQuizQuestionDto questionDto)
         {
-            var validationErrors = QuestionEditControllerValidator.ValidateQuestion(questionDto);
+            var validationErrors = QuestionWorkshopControllerValidator.ValidateQuestion(questionDto);
             if (validationErrors.Any())
             {
                 return BadRequest(validationErrors);
@@ -93,7 +93,7 @@ namespace Project_Quizz_API.Controllers
                 return NotFound();
             }
 
-            var validationErrors = QuestionEditControllerValidator.ValidateQuestion(questionDto);
+            var validationErrors = QuestionWorkshopControllerValidator.ValidateQuestion(questionDto);
             if (validationErrors.Any())
             {
                 return BadRequest(validationErrors);

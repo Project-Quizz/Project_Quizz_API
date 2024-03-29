@@ -24,11 +24,11 @@ namespace Project_Quizz_API.Controllers
         /// <param name="userId">Id of the user who wants to play the quiz</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetSingleQuiz")]
+        [Route("GetSingleQuizSession")]
         [ProducesResponseType(typeof(SingleQuizDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetSingleQuiz(int id, string userId)
+        public IActionResult GetSingleQuizSession(int id, string userId)
         {
             Single_Quiz singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == id);
             if (singleQuizFromDb == null)
@@ -105,6 +105,7 @@ namespace Project_Quizz_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetAllSingleQuizzesFromUser")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetAllSingleQuizzesFromUser(string userId)
         {
             var allSingleQuizzesFromDb = _context.Single_Quizzes.Where(x => x.UserId == userId).ToList();
@@ -146,15 +147,54 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
+        /// Update of an existing quiz session. It is also enough to only send Quiz_Attempts that have been modified
+        /// </summary>
+        /// <param name="updatedSingleQuizSessio">UpdateSingleQuizDto: Single_Quiz and Quiz_Attempts. It is also enough to only send Quiz_Attempts that have been modified</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("UpdateSingleQuizSession")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult UpdateSingleQuizSession(UpdateSingleQuizDto updatedSingleQuizSessio)
+        {
+            var singleQuizSessionFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == updatedSingleQuizSessio.Id);
+
+            if(singleQuizSessionFromDb == null)
+            {
+                return NotFound();
+            }
+
+            singleQuizSessionFromDb.Score = updatedSingleQuizSessio.Score;
+            singleQuizSessionFromDb.QuizCompleted = updatedSingleQuizSessio.QuizCompleted;
+
+            foreach (var quizAttempt in updatedSingleQuizSessio.Quiz_Attempts)
+            {
+                var quizAttemptFromDb = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.Id == quizAttempt.Id);
+                if(quizAttemptFromDb != null)
+                {
+                    quizAttemptFromDb.GivenAnswerId = quizAttempt.GivenAnswerId;
+                    quizAttemptFromDb.AnswerDate = quizAttempt.AnswerDate;
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+
+            _context.SaveChanges();
+
+            return Ok();
+        }
+        /// <summary>
         /// Create a single Quiz for specific User
         /// </summary>
         /// <param name="userId">The Id from User who will create a single quiz</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("CreateSingleQuiz")]
+        [Route("CreateSingleQuizSession")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult CreateSingleQuiz(string userId)
+        public IActionResult CreateSingleQuizSession(string userId)
         {
             if (userId == null)
             {
@@ -183,7 +223,7 @@ namespace Project_Quizz_API.Controllers
             _context.Add(singleQuiz);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetSingleQuiz), new { singleQuizId = singleQuiz.Id });
+            return CreatedAtAction(nameof(GetSingleQuizSession), new { singleQuizId = singleQuiz.Id });
         }
     }
 }
