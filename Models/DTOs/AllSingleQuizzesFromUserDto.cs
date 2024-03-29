@@ -1,6 +1,6 @@
 ﻿namespace Project_Quizz_API.Models.DTOs
 {
-    public class SingleQuizDto
+    public class AllSingleQuizzesFromUserDto
     {
         public int Id { get; set; }
 
@@ -14,12 +14,10 @@
 
         public int QuestionCount { get; set; }
 
-        public List<SingleQuizAttemptDto> Quiz_Attempts { get; set; }
-
-        public List<QuizQuestionDto> Question { get; set; }
+        public List<AllSingleQuizzesAttemptDto> Quiz_Attempts { get; set; }
     }
 
-    public class SingleQuizAttemptDto
+    public class AllSingleQuizzesAttemptDto
     {
         public int Id { get; set; }
 

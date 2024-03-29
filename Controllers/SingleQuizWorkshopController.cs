@@ -18,20 +18,27 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Returns a specific single quiz
+        /// Returns a specific single quiz with the questions and answers (For the execution of a quiz)
         /// </summary>
         /// <param name="id">The single Quiz Id to be returned</param>
+        /// <param name="userId">Id of the user who wants to play the quiz</param>
         /// <returns></returns>
         [HttpGet]
         [Route("GetSingleQuiz")]
         [ProducesResponseType(typeof(SingleQuizDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetSingleQuiz(int id)
+        public IActionResult GetSingleQuiz(int id, string userId)
         {
             Single_Quiz singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == id);
             if (singleQuizFromDb == null)
             {
                 return NotFound();
+            }
+
+            if (singleQuizFromDb.UserId != userId)
+            {
+                return BadRequest();
             }
 
             var singleQuiz = new SingleQuizDto
@@ -41,10 +48,11 @@ namespace Project_Quizz_API.Controllers
                 Score = singleQuizFromDb.Score,
                 CreateDate = singleQuizFromDb.CreateDate,
                 QuizCompleted = singleQuizFromDb.QuizCompleted,
-                Quiz_Attempts = new List<SingleQuizAttemptDto>()
+                Quiz_Attempts = new List<SingleQuizAttemptDto>(),
+                Question = new List<QuizQuestionDto>()
             };
 
-            var singleQuizAttempts = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == singleQuizFromDb.Id);
+            var singleQuizAttempts = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == singleQuizFromDb.Id).ToList();
             foreach (var attempt in singleQuizAttempts)
             {
                 singleQuiz.Quiz_Attempts.Add(new SingleQuizAttemptDto
@@ -55,6 +63,37 @@ namespace Project_Quizz_API.Controllers
                     AnswerDate = attempt.AnswerDate,
                 });
             }
+
+            var questionIds = singleQuizAttempts.Select(x => x.AskedQuestionId).ToHashSet();
+            var questions = _context.Quiz_Questions.Where(x => questionIds.Contains(x.Id)).ToList();
+            foreach (var quizQuestion in questions)
+            {
+                var quizQuestionDto = new QuizQuestionDto
+                {
+                    Id = quizQuestion.Id,
+                    QuestionText = quizQuestion.QuestionText,
+                    UserId = quizQuestion.UserId,
+                    Answers = new List<QuizAnswersDto>()
+                };
+
+                var answersForQuestion = _context.Quiz_Question_Answers.Where(x => x.QuestionId == quizQuestion.Id).ToList();
+
+                foreach (var answer in answersForQuestion)
+                {
+                    quizQuestionDto.Answers.Add(new QuizAnswersDto
+                    {
+                        Id = answer.Id,
+                        AnswerText = answer.AnswerText,
+                        IsCorrectAnswer = answer.IsCorrectAnswer,
+                    });
+                }
+
+                singleQuiz.Question.Add(quizQuestionDto);
+            }
+
+            var questionCountDto = singleQuiz.Question.Count();
+
+            singleQuiz.QuestionCount = questionCountDto;
 
             return Ok(singleQuiz);
         }
@@ -74,24 +113,24 @@ namespace Project_Quizz_API.Controllers
                 return NotFound();
             }
 
-            var singleQuizzesFromUser = new List<SingleQuizDto>();
+            var singleQuizzesFromUser = new List<AllSingleQuizzesFromUserDto>();
 
             foreach (var singleQuiz in allSingleQuizzesFromDb)
             {
-                var buildedSingleQuiz = new SingleQuizDto
+                var buildedSingleQuiz = new AllSingleQuizzesFromUserDto
                 {
                     Id = singleQuiz.Id,
                     UserId = singleQuiz.UserId,
                     Score = singleQuiz.Score,
                     CreateDate = singleQuiz.CreateDate,
                     QuizCompleted = singleQuiz.QuizCompleted,
-                    Quiz_Attempts = new List<SingleQuizAttemptDto>()
+                    Quiz_Attempts = new List<AllSingleQuizzesAttemptDto>()
                 };
 
                 var singleQuizAttempts = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == singleQuiz.Id);
                 foreach (var attempt in singleQuizAttempts)
                 {
-                    buildedSingleQuiz.Quiz_Attempts.Add(new SingleQuizAttemptDto
+                    buildedSingleQuiz.Quiz_Attempts.Add(new AllSingleQuizzesAttemptDto
                     {
                         Id = attempt.Id,
                         AskedQuestionId = attempt.AskedQuestionId,
