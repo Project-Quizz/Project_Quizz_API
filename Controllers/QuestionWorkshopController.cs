@@ -25,9 +25,10 @@ namespace Project_Quizz_API.Controllers
         {
             Quiz_Question questionFromDb = _context.Quiz_Questions.SingleOrDefault(x => x.Id == id);
 
-            if (questionFromDb == null)
+            var validationErrors = GenericValidators.CheckNullOrDefault(questionFromDb, "id");
+            if (validationErrors.Any())
             {
-                return NotFound();
+                return NotFound(validationErrors);
             }
 
             var question = new QuizQuestionDto
@@ -88,12 +89,14 @@ namespace Project_Quizz_API.Controllers
         public IActionResult UpdateQuestion(QuizQuestionDto questionDto)
         {
             var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionDto.Id);
-            if (questionFromDb == null)
+
+            var validationErrors = GenericValidators.CheckIfObjectExist(questionFromDb, nameof(Quiz_Question));
+            if (validationErrors.Any())
             {
-                return NotFound();
+                return NotFound(validationErrors);
             }
 
-            var validationErrors = QuestionWorkshopControllerValidator.ValidateQuestion(questionDto);
+            validationErrors = QuestionWorkshopControllerValidator.ValidateQuestion(questionDto);
             if (validationErrors.Any())
             {
                 return BadRequest(validationErrors);
@@ -124,9 +127,10 @@ namespace Project_Quizz_API.Controllers
         public IActionResult DeleteQuestion(int questionId)
         {
             var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionId);
-            if (questionFromDb == null)
+            var validateErrors = GenericValidators.CheckIfObjectExist(questionFromDb, nameof(Quiz_Question));
+            if (validateErrors.Any())
             {
-                return NotFound();
+                return NotFound(validateErrors);
             }
 
             _context.Remove(questionFromDb);

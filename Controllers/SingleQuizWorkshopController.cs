@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project_Quizz_API.Data;
 using Project_Quizz_API.Models;
 using Project_Quizz_API.Models.DTOs;
+using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
@@ -30,15 +31,20 @@ namespace Project_Quizz_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetSingleQuizSession(int id, string userId)
         {
-            Single_Quiz singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == id);
-            if (singleQuizFromDb == null)
+            var singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == id);
+
+            List<string> validationErrors = new List<string>();
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(singleQuizFromDb));
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(id, "id"));
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(userId, "userId"));
+            if (validationErrors.Any())
             {
-                return NotFound();
+                return NotFound(validationErrors);
             }
 
             if (singleQuizFromDb.UserId != userId)
             {
-                return BadRequest();
+                return BadRequest("User ID mismatch: The provided user ID does not match the owner of the quiz.");
             }
 
             var singleQuiz = new SingleQuizDto
@@ -111,7 +117,7 @@ namespace Project_Quizz_API.Controllers
             var allSingleQuizzesFromDb = _context.Single_Quizzes.Where(x => x.UserId == userId).ToList();
             if (allSingleQuizzesFromDb.Count == 0)
             {
-                return NotFound();
+                return NotFound($"No quizzes found for the user with ID '{userId}'.");
             }
 
             var singleQuizzesFromUser = new List<AllSingleQuizzesFromUserDto>();
@@ -159,25 +165,25 @@ namespace Project_Quizz_API.Controllers
         {
             var singleQuizSessionFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == updatedSingleQuizSessio.Id);
 
-            if(singleQuizSessionFromDb == null)
+            var validationErrors = GenericValidators.CheckIfObjectExist(singleQuizSessionFromDb);
+            if(validationErrors.Any())
             {
-                return NotFound();
+                return NotFound(validationErrors);
             }
 
             singleQuizSessionFromDb.Score = updatedSingleQuizSessio.Score;
             singleQuizSessionFromDb.QuizCompleted = updatedSingleQuizSessio.QuizCompleted;
 
-            foreach (var quizAttempt in updatedSingleQuizSessio.Quiz_Attempts)
+            if (updatedSingleQuizSessio.Quiz_Attempts.Count != 0)
             {
-                var quizAttemptFromDb = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.Id == quizAttempt.Id);
-                if(quizAttemptFromDb != null)
+                foreach (var quizAttempt in updatedSingleQuizSessio.Quiz_Attempts)
                 {
-                    quizAttemptFromDb.GivenAnswerId = quizAttempt.GivenAnswerId;
-                    quizAttemptFromDb.AnswerDate = quizAttempt.AnswerDate;
-                }
-                else
-                {
-                    return NotFound();
+                    var quizAttemptFromDb = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.Id == quizAttempt.Id);
+                    if (quizAttemptFromDb != null)
+                    {
+                        quizAttemptFromDb.GivenAnswerId = quizAttempt.GivenAnswerId;
+                        quizAttemptFromDb.AnswerDate = quizAttempt.AnswerDate;
+                    }
                 }
             }
 
@@ -185,6 +191,7 @@ namespace Project_Quizz_API.Controllers
 
             return Ok();
         }
+
         /// <summary>
         /// Create a single Quiz for specific User
         /// </summary>
