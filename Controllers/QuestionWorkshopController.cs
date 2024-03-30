@@ -19,6 +19,12 @@ namespace Project_Quizz_API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Returns the Quiz_Question with all Answers
+        /// </summary>
+        /// <param name="id">Id from Quiz_Qestion</param>
+        /// <returns>
+        /// </returns>
         [HttpGet]
         [Route("GetQuestion")]
         public IActionResult GetQuestion(int id)
@@ -53,6 +59,11 @@ namespace Project_Quizz_API.Controllers
             return Ok(question);
         }
 
+        /// <summary>
+        /// Create a question with the given parameters. It's essential to provide exactly four answers. 
+        /// </summary>
+        /// <param name="questionDto">The data transfer object containing the question and its answers.</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("CreateQuestion")]
         public IActionResult CreateQuestion(CreateQuizQuestionDto questionDto)
@@ -84,6 +95,11 @@ namespace Project_Quizz_API.Controllers
             return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id });
         }
 
+        /// <summary>
+        /// Updates an existing quiz question and its answers based on the provided data.
+        /// </summary>
+        /// <param name="questionDto">The data transfer object containing the updated information for the quiz question and its answers. </param>
+        /// <returns></returns>
         [HttpPut]
         [Route("UpdateQuestion")]
         public IActionResult UpdateQuestion(QuizQuestionDto questionDto)
@@ -123,6 +139,12 @@ namespace Project_Quizz_API.Controllers
             return Ok("Update Quiz Question with Answers successfully");
         }
 
+
+        /// <summary>
+        /// Deletes a quiz question and its associated answers from the database.
+        /// </summary>
+        /// <param name="questionId">The ID of the quiz question to be deleted.</param>
+        /// <returns></returns>
         [HttpDelete]
         public IActionResult DeleteQuestion(int questionId)
         {
