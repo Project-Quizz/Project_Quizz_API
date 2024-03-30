@@ -2,15 +2,10 @@
 
 namespace Project_Quizz_API.Validations
 {
-    public class QuestionEditControllerValidator
+    public class QuestionWorkshopControllerValidator
     {
         public static IEnumerable<string> ValidateQuestion(CreateQuizQuestionDto questionDto)
         {
-            if (questionDto == null)
-            {
-                yield return "Question data must not be null.";
-            }
-
             if (string.IsNullOrEmpty(questionDto.QuestionText))
             {
                 yield return "Question text is required.";
@@ -24,11 +19,6 @@ namespace Project_Quizz_API.Validations
 
         public static IEnumerable<string> ValidateQuestion(QuizQuestionDto questionDto)
         {
-            if (questionDto == null)
-            {
-                yield return "Question data must not be null.";
-            }
-
             if (string.IsNullOrEmpty(questionDto.QuestionText))
             {
                 yield return "Question text is required.";

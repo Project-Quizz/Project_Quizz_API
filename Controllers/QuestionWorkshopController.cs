@@ -19,15 +19,22 @@ namespace Project_Quizz_API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Returns the Quiz_Question with all Answers
+        /// </summary>
+        /// <param name="id">Id from Quiz_Qestion</param>
+        /// <returns>
+        /// </returns>
         [HttpGet]
         [Route("GetQuestion")]
         public IActionResult GetQuestion(int id)
         {
             Quiz_Question questionFromDb = _context.Quiz_Questions.SingleOrDefault(x => x.Id == id);
 
-            if (questionFromDb == null)
+            var validationErrors = GenericValidators.CheckNullOrDefault(questionFromDb, "id");
+            if (validationErrors.Any())
             {
-                return NotFound();
+                return NotFound(validationErrors);
             }
 
             var question = new QuizQuestionDto
@@ -52,11 +59,16 @@ namespace Project_Quizz_API.Controllers
             return Ok(question);
         }
 
+        /// <summary>
+        /// Create a question with the given parameters. It's essential to provide exactly four answers. 
+        /// </summary>
+        /// <param name="questionDto">The data transfer object containing the question and its answers.</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("CreateQuestion")]
         public IActionResult CreateQuestion(CreateQuizQuestionDto questionDto)
         {
-            var validationErrors = QuestionEditControllerValidator.ValidateQuestion(questionDto);
+            var validationErrors = QuestionWorkshopControllerValidator.ValidateQuestion(questionDto);
             if (validationErrors.Any())
             {
                 return BadRequest(validationErrors);
@@ -83,17 +95,24 @@ namespace Project_Quizz_API.Controllers
             return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id });
         }
 
+        /// <summary>
+        /// Updates an existing quiz question and its answers based on the provided data.
+        /// </summary>
+        /// <param name="questionDto">The data transfer object containing the updated information for the quiz question and its answers. </param>
+        /// <returns></returns>
         [HttpPut]
         [Route("UpdateQuestion")]
         public IActionResult UpdateQuestion(QuizQuestionDto questionDto)
         {
             var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionDto.Id);
-            if (questionFromDb == null)
+
+            var validationErrors = GenericValidators.CheckIfObjectExist(questionFromDb, nameof(Quiz_Question));
+            if (validationErrors.Any())
             {
-                return NotFound();
+                return NotFound(validationErrors);
             }
 
-            var validationErrors = QuestionEditControllerValidator.ValidateQuestion(questionDto);
+            validationErrors = QuestionWorkshopControllerValidator.ValidateQuestion(questionDto);
             if (validationErrors.Any())
             {
                 return BadRequest(validationErrors);
@@ -120,13 +139,20 @@ namespace Project_Quizz_API.Controllers
             return Ok("Update Quiz Question with Answers successfully");
         }
 
+
+        /// <summary>
+        /// Deletes a quiz question and its associated answers from the database.
+        /// </summary>
+        /// <param name="questionId">The ID of the quiz question to be deleted.</param>
+        /// <returns></returns>
         [HttpDelete]
         public IActionResult DeleteQuestion(int questionId)
         {
             var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionId);
-            if (questionFromDb == null)
+            var validateErrors = GenericValidators.CheckIfObjectExist(questionFromDb, nameof(Quiz_Question));
+            if (validateErrors.Any())
             {
-                return NotFound();
+                return NotFound(validateErrors);
             }
 
             _context.Remove(questionFromDb);

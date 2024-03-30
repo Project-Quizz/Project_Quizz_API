@@ -27,10 +27,8 @@ namespace Project_Quizz_API.UnitTests
             _controller = new QuestionWorkshopController(_context);
         }
 
-        [Test, Order(1)]
-        public void CreateQuestion_AddQuestionWithAnswersToDb()
+        private CreateQuizQuestionDto CreateQuizQuestionDto()
         {
-            //Arrange
             var newQuestionDto = new CreateQuizQuestionDto
             {
                 QuestionText = "test",
@@ -59,6 +57,15 @@ namespace Project_Quizz_API.UnitTests
                     }
                 }
             };
+
+            return newQuestionDto;
+        }
+
+        [Test, Order(1)]
+        public void CreateQuestion_AddQuestionWithAnswersToDb()
+        {
+            //Arrange
+            var newQuestionDto = CreateQuizQuestionDto();
 
             //Act
             var result = _controller.CreateQuestion(newQuestionDto) as CreatedAtActionResult;
@@ -166,7 +173,7 @@ namespace Project_Quizz_API.UnitTests
         {
             int testQuestionId = 99;
 
-            var result = _controller.GetQuestion(testQuestionId) as NotFoundResult;
+            var result = _controller.GetQuestion(testQuestionId) as NotFoundObjectResult;
 
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         }
@@ -222,11 +229,17 @@ namespace Project_Quizz_API.UnitTests
         [Test]
         public void DeleteQuestion_WhenQuestionExists_ReturnOkObjectResult()
         {
+            if(!_context.Quiz_Questions.Any())
+            {
+                var newQuestionDto = CreateQuizQuestionDto();
+                _controller.CreateQuestion(newQuestionDto);
+            }
+
             int testQuestionId = 1;
 
             var result = _controller.DeleteQuestion(testQuestionId) as OkObjectResult;
 
-            var validateResult = _controller.GetQuestion(testQuestionId) as NotFoundResult;
+            var validateResult = _controller.GetQuestion(testQuestionId) as NotFoundObjectResult;
 
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
@@ -238,7 +251,7 @@ namespace Project_Quizz_API.UnitTests
         {
             int testQuestionId = 99;
 
-            var result = _controller.DeleteQuestion(testQuestionId) as NotFoundResult;
+            var result = _controller.DeleteQuestion(testQuestionId) as NotFoundObjectResult;
 
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         }
