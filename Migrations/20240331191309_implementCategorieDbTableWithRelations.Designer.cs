@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project_Quizz_API.Data;
 
@@ -11,9 +12,11 @@ using Project_Quizz_API.Data;
 namespace Project_Quizz_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240331191309_implementCategorieDbTableWithRelations")]
+    partial class implementCategorieDbTableWithRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,17 +237,7 @@ namespace Project_Quizz_API.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("QuestionsId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SingleQuizzesId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("QuestionsId");
-
-                    b.HasIndex("SingleQuizzesId");
 
                     b.ToTable("Quiz_Categories");
                 });
@@ -413,25 +406,10 @@ namespace Project_Quizz_API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Project_Quizz_API.Models.Quiz_Categorie", b =>
-                {
-                    b.HasOne("Project_Quizz_API.Models.Quiz_Question", "Questions")
-                        .WithMany()
-                        .HasForeignKey("QuestionsId");
-
-                    b.HasOne("Project_Quizz_API.Models.Single_Quiz", "SingleQuizzes")
-                        .WithMany()
-                        .HasForeignKey("SingleQuizzesId");
-
-                    b.Navigation("Questions");
-
-                    b.Navigation("SingleQuizzes");
-                });
-
             modelBuilder.Entity("Project_Quizz_API.Models.Quiz_Question", b =>
                 {
                     b.HasOne("Project_Quizz_API.Models.Quiz_Categorie", "Quiz_Categorie")
-                        .WithMany()
+                        .WithMany("Questions")
                         .HasForeignKey("QuizCategorieId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -453,7 +431,7 @@ namespace Project_Quizz_API.Migrations
             modelBuilder.Entity("Project_Quizz_API.Models.Single_Quiz", b =>
                 {
                     b.HasOne("Project_Quizz_API.Models.Quiz_Categorie", "Quiz_Categorie")
-                        .WithMany()
+                        .WithMany("SingleQuizzes")
                         .HasForeignKey("QuizCategorieId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -485,6 +463,13 @@ namespace Project_Quizz_API.Migrations
                     b.Navigation("Quiz_Question_Answer");
 
                     b.Navigation("Single_Quiz");
+                });
+
+            modelBuilder.Entity("Project_Quizz_API.Models.Quiz_Categorie", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("SingleQuizzes");
                 });
 
             modelBuilder.Entity("Project_Quizz_API.Models.Quiz_Question", b =>

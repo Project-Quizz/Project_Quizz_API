@@ -10,6 +10,7 @@ namespace Project_Quizz_API.Data
         public virtual DbSet<Quiz_Question_Answer> Quiz_Question_Answers { get; set; }
         public virtual DbSet<Single_Quiz> Single_Quizzes { get; set; }
         public virtual DbSet<Single_Quiz_Attempt> Single_Quiz_Attempts { get; set; }
+        public virtual DbSet<Quiz_Categorie> Quiz_Categories { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -47,6 +48,18 @@ namespace Project_Quizz_API.Data
                 .HasOne(a => a.Quiz_Question_Answer)
                 .WithMany()
                 .HasForeignKey(a => a.GivenAnswerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Quiz_Question>()
+                .HasOne(a => a.Quiz_Categorie)
+                .WithMany(a => a.Questions)
+                .HasForeignKey(a => a.QuizCategorieId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Single_Quiz>()
+                .HasOne(a => a.Quiz_Categorie)
+                .WithMany(a => a.SingleQuizzes)
+                .HasForeignKey(a => a.QuizCategorieId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 

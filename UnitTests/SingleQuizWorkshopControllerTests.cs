@@ -50,6 +50,7 @@ namespace Project_Quizz_API.UnitTests
                     UserId = userId,
                     Score = i,
                     CreateDate = DateTime.Now,
+                    QuizCategorieId = 1,
                     QuizCompleted = random.Next(2) == 1
                 };
                 _context.Single_Quizzes.Add(quiz);
@@ -62,9 +63,10 @@ namespace Project_Quizz_API.UnitTests
         {
             // Arrange
             string testUserId = "validUserId";
+            int categorieId = 1;
 
             // Act
-            var result = _controller.CreateSingleQuizSession(testUserId) as CreatedAtActionResult;
+            var result = _controller.CreateSingleQuizSession(testUserId, categorieId) as CreatedAtActionResult;
 
             // Assert
             ClassicAssert.IsNotNull(result);
@@ -76,9 +78,10 @@ namespace Project_Quizz_API.UnitTests
         {
             // Arrange
             string testUserId = null;
+            int categorieId = 1;
 
             // Act
-            var result = _controller.CreateSingleQuizSession(testUserId) as BadRequestObjectResult;
+            var result = _controller.CreateSingleQuizSession(testUserId, categorieId) as BadRequestObjectResult;
 
             // Assert
             ClassicAssert.IsNotNull(result);
