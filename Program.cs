@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Project_Quizz_API.Data;
+using Project_Quizz_API.Services;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for our Quiz Project"
     });
 
+    options.OperationFilter<SwaggerApiKeayHeader>();
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
@@ -28,12 +31,39 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Automatische Migration beim Start
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
 }
+
+//Swagger authentication
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/swagger"))
+    {
+        string authHeader = context.Request.Headers["Authorization"];
+        if (authHeader != null && authHeader.StartsWith("Basic "))
+        {
+            var encodedUsernamePassword = authHeader.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries)[1]?.Trim();
+            var decodedUsernamePassword = Encoding.UTF8.GetString(Convert.FromBase64String(encodedUsernamePassword));
+            var username = decodedUsernamePassword.Split(':', 2)[0];
+            var password = decodedUsernamePassword.Split(':', 2)[1];
+
+            if (username == "admin" && password == "Marine123!") 
+            {
+                await next();
+                return;
+            }
+        }
+
+        context.Response.Headers["WWW-Authenticate"] = "Basic";
+        context.Response.StatusCode = 401;
+        return;
+    }
+
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

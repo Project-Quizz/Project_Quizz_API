@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Project_Quizz_API.Data;
 using Project_Quizz_API.Models;
 using Project_Quizz_API.Models.DTOs;
+using Project_Quizz_API.Services;
 
 namespace Project_Quizz_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKeyAuthoriziation]
     public class CategorieWorkshopController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
