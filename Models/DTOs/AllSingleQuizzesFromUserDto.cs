@@ -13,6 +13,7 @@
         public bool QuizCompleted { get; set; }
 
         public int QuestionCount { get; set; }
+        public AllSingleQuizzesCategorieDto Categorie { get; set; }
 
         public List<AllSingleQuizzesAttemptDto> Quiz_Attempts { get; set; }
     }
@@ -26,5 +27,11 @@
         public int? GivenAnswerId { get; set; }
 
         public DateTime? AnswerDate { get; set; }
+    }
+
+    public class AllSingleQuizzesCategorieDto
+    {
+        public int CategorieId { get; set; }
+        public string Name { get; set; }
     }
 }

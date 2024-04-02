@@ -1,10 +1,13 @@
-﻿namespace Project_Quizz_API.Models.DTOs
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Project_Quizz_API.Models.DTOs
 {
     public class QuizQuestionDto
     {
         public int Id { get; set; }
         public string QuestionText { get; set; }
         public string UserId { get; set; }
+        public QuizCategorieDto Categorie { get; set; }
         public List<QuizAnswersDto> Answers { get; set; }
     }
 

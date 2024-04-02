@@ -29,10 +29,24 @@ namespace Project_Quizz_API.UnitTests
 
         private CreateQuizQuestionDto CreateQuizQuestionDto()
         {
+            var categorie = new Quiz_Categorie
+            {
+                Name = "Test Kategorie",
+                CreateDate = DateTime.Now
+
+            };
+
+            _context.Add(categorie);
+            _context.SaveChanges();
+
             var newQuestionDto = new CreateQuizQuestionDto
             {
                 QuestionText = "test",
                 UserId = "fjsdKOP890KJLÖ",
+                Categorie = new CreateQuizCategorieDto
+                {
+                    CategorieId = 1
+                },
                 Answers = new List<CreateQuizAnswersDto>
                 {
                     new CreateQuizAnswersDto
@@ -189,6 +203,11 @@ namespace Project_Quizz_API.UnitTests
                 Id = 1,
                 QuestionText = "Geändert",
                 UserId = "fjsdKOP890KJLÖ",
+                Categorie = new QuizCategorieDto
+                {
+                    CategorieId = 1,
+                    Name = "Test Kategorie"
+                },
                 Answers = new List<QuizAnswersDto>
                 {
                     new QuizAnswersDto

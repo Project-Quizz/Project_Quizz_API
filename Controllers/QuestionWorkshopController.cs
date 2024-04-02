@@ -37,11 +37,18 @@ namespace Project_Quizz_API.Controllers
                 return NotFound(validationErrors);
             }
 
+            var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == questionFromDb.QuizCategorieId);
+
             var question = new QuizQuestionDto
             {
                 Id = questionFromDb.Id,
                 QuestionText = questionFromDb.QuestionText,
                 UserId = questionFromDb.UserId,
+                Categorie = new QuizCategorieDto
+                {
+                    CategorieId = categorie.Id,
+                    Name = categorie.Name
+                },
                 Answers = new List<QuizAnswersDto>()
             };
 
@@ -74,10 +81,16 @@ namespace Project_Quizz_API.Controllers
                 return BadRequest(validationErrors);
             }
 
+            if (_context.Quiz_Categories.FirstOrDefault(x => x.Id == questionDto.Categorie.CategorieId) == null)
+            {
+                return NotFound("Given categorie not found");
+            }
+
             var question = new Quiz_Question
             {
                 QuestionText = questionDto.QuestionText,
                 UserId = questionDto.UserId,
+                QuizCategorieId = questionDto.Categorie.CategorieId,
                 Answers = new List<Quiz_Question_Answer>()
             };
 
@@ -118,8 +131,14 @@ namespace Project_Quizz_API.Controllers
                 return BadRequest(validationErrors);
             }
 
+            if (_context.Quiz_Categories.FirstOrDefault(x => x.Id == questionDto.Categorie.CategorieId) == null)
+            {
+                return NotFound("Given categorie not found");
+            }
+
             questionFromDb.QuestionText = questionDto.QuestionText;
             questionFromDb.UserId = questionDto.UserId;
+            questionFromDb.QuizCategorieId = questionDto.Categorie.CategorieId;
 
             foreach (var answer in questionDto.Answers)
             {
@@ -131,7 +150,7 @@ namespace Project_Quizz_API.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return NotFound($"Answer with Id {answer.Id} not found");
                 }
             }
 

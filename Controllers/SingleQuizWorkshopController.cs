@@ -124,6 +124,13 @@ namespace Project_Quizz_API.Controllers
 
             foreach (var singleQuiz in allSingleQuizzesFromDb)
             {
+                var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == singleQuiz.QuizCategorieId);
+
+                if (categorie == null)
+                {
+                    return NotFound($"Categorie for Single Quiz with Id {singleQuiz.Id} not found. Categorie Id {singleQuiz.QuizCategorieId}");
+                }
+
                 var buildedSingleQuiz = new AllSingleQuizzesFromUserDto
                 {
                     Id = singleQuiz.Id,
@@ -131,6 +138,11 @@ namespace Project_Quizz_API.Controllers
                     Score = singleQuiz.Score,
                     CreateDate = singleQuiz.CreateDate,
                     QuizCompleted = singleQuiz.QuizCompleted,
+                    Categorie = new AllSingleQuizzesCategorieDto
+                    {
+                        CategorieId = categorie.Id,
+                        Name = categorie.Name
+                    },
                     Quiz_Attempts = new List<AllSingleQuizzesAttemptDto>()
                 };
 
@@ -196,22 +208,34 @@ namespace Project_Quizz_API.Controllers
         /// Create a single Quiz for specific User
         /// </summary>
         /// <param name="userId">The Id from User who will create a single quiz</param>
+        /// <param name="categorieId">The Id of the Categorie of the Single Quiz</param>
         /// <returns></returns>
         [HttpPost]
         [Route("CreateSingleQuizSession")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult CreateSingleQuizSession(string userId)
+        public IActionResult CreateSingleQuizSession(string userId, int categorieId)
         {
+            if (categorieId == 0)
+            {
+                categorieId = 1;
+            }
+
             if (userId == null)
             {
                 return BadRequest("UserId must not be null");
+            }
+
+            if (_context.Quiz_Categories.FirstOrDefault(x=> x.Id == categorieId) == null)
+            {
+                return NotFound($"Categorie with Id {categorieId} not Found");
             }
 
             var singleQuiz = new Single_Quiz
             {
                 UserId = userId,
                 Score = 0,
+                QuizCategorieId = categorieId,
                 Quiz_Attempts = new List<Single_Quiz_Attempt>(),
                 CreateDate = DateTime.Now
             };
