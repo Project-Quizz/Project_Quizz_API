@@ -4,6 +4,7 @@ using Project_Quizz_API.Data;
 using Project_Quizz_API.Models;
 using Project_Quizz_API.Models.DTOs;
 using Project_Quizz_API.Services;
+using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
@@ -125,6 +126,11 @@ namespace Project_Quizz_API.Controllers
             if (categorieFromDb == null)
             {
                 return NotFound($"Categorie with Id {id} not Found");
+            }
+
+            if (CategogieWorkshopControllerValidators.CategorieIsInUse(id, _context))
+            {
+                return BadRequest($"Categorie with Id {id} is in use");
             }
 
             _context.Remove(categorieFromDb);
