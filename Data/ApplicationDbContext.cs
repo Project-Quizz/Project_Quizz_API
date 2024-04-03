@@ -11,6 +11,9 @@ namespace Project_Quizz_API.Data
         public virtual DbSet<Single_Quiz> Single_Quizzes { get; set; }
         public virtual DbSet<Single_Quiz_Attempt> Single_Quiz_Attempts { get; set; }
         public virtual DbSet<Quiz_Categorie> Quiz_Categories { get; set; }
+        public virtual DbSet<Multi_Quiz> Multi_Quizzes { get; set; }
+        public virtual DbSet<Multi_Quiz_Player> Multi_Quiz_Players { get; set; }
+        public virtual DbSet<Multi_Quiz_Attempt> Multi_Quiz_Attempts { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -61,6 +64,43 @@ namespace Project_Quizz_API.Data
                 .WithMany(a => a.SingleQuizzes)
                 .HasForeignKey(a => a.QuizCategorieId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Multi_Quiz>()
+                .HasMany(a => a.Multi_Quiz_Attempts)
+                .WithOne(a => a.Multi_Quiz)
+                .HasForeignKey(a => a.MultiQuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Multi_Quiz>()
+                .HasOne(a => a.Quiz_Categorie)
+                .WithMany()
+                .HasForeignKey(a => a.QuizCategorieId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Multi_Quiz>()
+                .HasMany(a => a.Multi_Quiz_Players)
+                .WithOne(a => a.Multi_Quiz)
+                .HasForeignKey(a => a.MultiQuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Multi_Quiz_Player>()
+                .HasMany(a => a.Multi_Quiz_Attempts)
+                .WithOne(a => a.Multi_Quiz_Player)
+                .HasForeignKey(a => a.MultiQuizPlayerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Multi_Quiz_Attempt>()
+                .HasOne(a => a.Quiz_Question)
+                .WithMany()
+                .HasForeignKey(a => a.AskedQuestionId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity <Multi_Quiz_Attempt>()
+                .HasOne(a => a.Quiz_Question_Answer)
+                .WithMany()
+                .HasForeignKey(a => a.AskedQuestionId)
+                .OnDelete(DeleteBehavior.NoAction);
+                
         }
 
     }
