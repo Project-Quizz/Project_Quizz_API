@@ -5,12 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Project_Quizz_API.Data;
 using Project_Quizz_API.Models;
 using Project_Quizz_API.Models.DTOs;
+using Project_Quizz_API.Services;
 using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKeyAuthoriziation]
     public class QuestionWorkshopController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -29,12 +31,16 @@ namespace Project_Quizz_API.Controllers
         [Route("GetQuestion")]
         public IActionResult GetQuestion(int id)
         {
-            Quiz_Question questionFromDb = _context.Quiz_Questions.SingleOrDefault(x => x.Id == id);
-
-            var validationErrors = GenericValidators.CheckNullOrDefault(questionFromDb, "id");
+            var validationErrors = GenericValidators.CheckNullOrDefault(id, "id");
             if (validationErrors.Any())
             {
                 return NotFound(validationErrors);
+            }
+
+            Quiz_Question questionFromDb = _context.Quiz_Questions.SingleOrDefault(x => x.Id == id);
+            if (questionFromDb == null)
+            {
+                return NotFound($"Question with Id {id} not found");
             }
 
             var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == questionFromDb.QuizCategorieId);
