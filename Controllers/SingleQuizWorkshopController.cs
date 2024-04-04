@@ -239,9 +239,9 @@ namespace Project_Quizz_API.Controllers
                 return BadRequest();
             }
 
-            var question = _context.Quiz_Questions.FirstOrDefault(x => x.Id == questionId);
+            var answerFromDb = _context.Quiz_Question_Answers.FirstOrDefault(x => x.Id == answerFromUserId);
 
-            if (question == null)
+            if (answerFromDb == null || answerFromDb.QuestionId != questionId)
             {
                 return BadRequest();
             }

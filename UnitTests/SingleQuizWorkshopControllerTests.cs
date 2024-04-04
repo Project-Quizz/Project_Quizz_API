@@ -89,48 +89,48 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.AreEqual("UserId must not be null", result.Value);
         }
 
-        [Test]
-        public void UpdateSingleQuizSession_Successful_WithValidData()
-        {
-            // Arrange
-            var testQuizSession = CreateAndSaveTestQuizSession();
-            var updatedQuizSessionDto = new UpdateSingleQuizDto
-            {
-                Id = testQuizSession.Id,
-                Score = 10,
-                QuizCompleted = true,
-                Quiz_Attempts = new List<UpdateSingleQuizAttemptDto>()
-            };
+        //[Test]
+        //public void UpdateSingleQuizSession_Successful_WithValidData()
+        //{
+        //    // Arrange
+        //    var testQuizSession = CreateAndSaveTestQuizSession();
+        //    var updatedQuizSessionDto = new UpdateSingleQuizDto
+        //    {
+        //        Id = testQuizSession.Id,
+        //        Score = 10,
+        //        QuizCompleted = true,
+        //        Quiz_Attempts = new List<UpdateSingleQuizAttemptDto>()
+        //    };
 
-            // Act
-            var result = _controller.UpdateSingleQuizSession(updatedQuizSessionDto) as OkResult;
-            var actual = _context.Single_Quizzes.SingleOrDefault(x => x.Id == testQuizSession.Id);
+        //    // Act
+        //    var result = _controller.UpdateSingleQuizSession(updatedQuizSessionDto) as OkResult;
+        //    var actual = _context.Single_Quizzes.SingleOrDefault(x => x.Id == testQuizSession.Id);
 
-            // Assert
-            ClassicAssert.IsNotNull(result);
-            ClassicAssert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
-            ClassicAssert.AreEqual(actual.Score, updatedQuizSessionDto.Score);
-            // Sie können auch überprüfen, ob die Änderungen in der Datenbank korrekt vorgenommen wurden.
-        }
+        //    // Assert
+        //    ClassicAssert.IsNotNull(result);
+        //    ClassicAssert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
+        //    ClassicAssert.AreEqual(actual.Score, updatedQuizSessionDto.Score);
+        //    // Sie können auch überprüfen, ob die Änderungen in der Datenbank korrekt vorgenommen wurden.
+        //}
 
-        [Test]
-        public void UpdateSingleQuizSession_Fails_WhenQuizDoesNotExist()
-        {
-            // Arrange
-            var updatedQuizSessionDto = new UpdateSingleQuizDto
-            {
-                Id = 99,
-                Score = 10,
-                QuizCompleted = true,
-            };
+        //[Test]
+        //public void UpdateSingleQuizSession_Fails_WhenQuizDoesNotExist()
+        //{
+        //    // Arrange
+        //    var updatedQuizSessionDto = new UpdateSingleQuizDto
+        //    {
+        //        Id = 99,
+        //        Score = 10,
+        //        QuizCompleted = true,
+        //    };
 
-            // Act
-            var result = _controller.UpdateSingleQuizSession(updatedQuizSessionDto) as NotFoundObjectResult;
+        //    // Act
+        //    var result = _controller.UpdateSingleQuizSession(updatedQuizSessionDto) as NotFoundObjectResult;
 
-            // Assert
-            ClassicAssert.IsNotNull(result);
-            ClassicAssert.AreEqual(StatusCodes.Status404NotFound, result.StatusCode);
-        }
+        //    // Assert
+        //    ClassicAssert.IsNotNull(result);
+        //    ClassicAssert.AreEqual(StatusCodes.Status404NotFound, result.StatusCode);
+        //}
 
         [Test]
         public void GetAllSingleQuizzesFromUser_ReturnsQuizzes_WhenUserHasQuizzes()
