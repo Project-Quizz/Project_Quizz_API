@@ -21,6 +21,8 @@ namespace Project_Quizz_API.Models
         [ForeignKey("Quiz_Categorie")]
         public int QuizCategorieId { get; set; } = 0;
 
+        public int? QuestionCount { get; set; }
+
         public virtual ICollection<Single_Quiz_Attempt> Quiz_Attempts { get; set; }
 
         public virtual Quiz_Categorie Quiz_Categorie { get; set; }
