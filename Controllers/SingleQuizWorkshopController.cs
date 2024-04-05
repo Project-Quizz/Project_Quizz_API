@@ -72,8 +72,8 @@ namespace Project_Quizz_API.Controllers
 		}
 
         [HttpGet]
-        [Route("GetSingleQuizFromUser")]
-        public IActionResult GetSingleQuizFromUser(int quizId, string userId)
+        [Route("GetResultFromSingleQuiz")]
+        public IActionResult GetResultFromSingleQuiz(int quizId, string userId)
 		{
 			var quizSessionFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == quizId);
 
@@ -166,10 +166,7 @@ namespace Project_Quizz_API.Controllers
 		/// <summary>
 		/// Update of an existing quiz session.
 		/// </summary>
-		/// <param name="quizId"></param>
-		/// <param name="questionId"></param>
-		/// <param name="answerFromUserId"></param>
-		/// <param name="userId"></param>
+		/// <param name="updateSingleQuizSession"></param>
 		/// <response code="200">When the quiz session has been successfully updated</response>
 		/// <response code="202">When the quiz session is complete and all questions have been answered</response>
 		/// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
@@ -180,18 +177,18 @@ namespace Project_Quizz_API.Controllers
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		public IActionResult UpdateSingleQuizSession(int quizId, int questionId, int answerFromUserId, string userId)
+		public IActionResult UpdateSingleQuizSession(UpdateSingleQuizSessionDto updateSingleQuizSession)
         {
-            var quizSession = _context.Single_Quizzes.FirstOrDefault(x => x.Id == quizId);
-			var answerFromDb = _context.Quiz_Question_Answers.FirstOrDefault(x => x.Id == answerFromUserId);
-			var attempt = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.SingleQuizId == quizId && x.AskedQuestionId == questionId);
+            var quizSession = _context.Single_Quizzes.FirstOrDefault(x => x.Id == updateSingleQuizSession.QuizId);
+			var answerFromDb = _context.Quiz_Question_Answers.FirstOrDefault(x => x.Id == updateSingleQuizSession.AnswerFromUserId);
+			var attempt = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.SingleQuizId == updateSingleQuizSession.QuizId && x.AskedQuestionId == updateSingleQuizSession.QuestionId);
 
-			if (quizSession == null || !quizSession.UserId.Equals(userId))
+			if (quizSession == null || !quizSession.UserId.Equals(updateSingleQuizSession.UserId))
             {
                 return BadRequest();
             }
 
-            if (answerFromDb == null || answerFromDb.QuestionId != questionId)
+            if (answerFromDb == null || answerFromDb.QuestionId != updateSingleQuizSession.QuestionId)
             {
                 return BadRequest();
             }
@@ -211,7 +208,7 @@ namespace Project_Quizz_API.Controllers
 				quizSession.Score += 5;
 			}
 
-			attempt.GivenAnswerId = answerFromUserId;
+			attempt.GivenAnswerId = updateSingleQuizSession.AnswerFromUserId;
             attempt.AnswerDate = DateTime.Now;
             quizSession.QuestionCount -= 1;
 
