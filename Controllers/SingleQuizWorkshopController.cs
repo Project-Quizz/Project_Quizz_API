@@ -20,8 +20,16 @@ namespace Project_Quizz_API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Return a question for specific single quiz with teh answers
+        /// </summary>
+        /// <param name="quizId">The id of the quiz how needs questions</param>
+        /// <param name="userId">The id of the user of the quiz</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetQuestionFromQuizSession")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetQuestionFromQuizSession(int quizId, string userId)
         {
             var singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == quizId);
@@ -71,8 +79,16 @@ namespace Project_Quizz_API.Controllers
 
 		}
 
+        /// <summary>
+        /// Return the result of a quiz session
+        /// </summary>
+        /// <param name="quizId">The quiz id of the needed result</param>
+        /// <param name="userId">The user id of the quiz session how need the result</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetResultFromSingleQuiz")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetResultFromSingleQuiz(int quizId, string userId)
 		{
 			var quizSessionFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == quizId);
