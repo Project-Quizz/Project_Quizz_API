@@ -17,4 +17,13 @@ namespace Project_Quizz_API.Models.DTOs
         public string AnswerText { get; set; }
         public bool IsCorrectAnswer { get; set; }
     }
+
+    public class QuizQuestionForSingleQuizDto
+    {
+		public int QuestionId { get; set; }
+        public int QuizId { get; set; }
+        public int? QuestionCount { get; set; }
+		public string QuestionText { get; set; }
+		public List<QuizAnswersDto> Answers { get; set; }
+	}
 }

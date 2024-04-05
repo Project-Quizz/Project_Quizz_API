@@ -21,90 +21,103 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Returns a specific single quiz with the questions and answers (For the execution of a quiz)
+        /// Return a question for specific single quiz with teh answers
         /// </summary>
-        /// <param name="id">The single Quiz Id to be returned</param>
-        /// <param name="userId">Id of the user who wants to play the quiz</param>
+        /// <param name="quizId">The id of the quiz how needs questions</param>
+        /// <param name="userId">The id of the user of the quiz</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetSingleQuizSession")]
-        [ProducesResponseType(typeof(SingleQuizDto), StatusCodes.Status200OK)]
+        [Route("GetQuestionFromQuizSession")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetSingleQuizSession(int id, string userId)
+        public IActionResult GetQuestionFromQuizSession(int quizId, string userId)
         {
-            var singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == id);
+            var singleQuizFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == quizId);
 
-            List<string> validationErrors = new List<string>();
-            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(singleQuizFromDb));
-            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(id, "id"));
-            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(userId, "userId"));
-            if (validationErrors.Any())
-            {
-                return NotFound(validationErrors);
-            }
+			List<string> validationErrors = new List<string>();
+			validationErrors.AddRange(GenericValidators.CheckNullOrDefault(singleQuizFromDb));
+			validationErrors.AddRange(GenericValidators.CheckNullOrDefault(quizId, "id"));
+			validationErrors.AddRange(GenericValidators.CheckNullOrDefault(userId, "userId"));
+			if (validationErrors.Any())
+			{
+				return NotFound(validationErrors);
+			}
 
-            if (singleQuizFromDb.UserId != userId)
-            {
-                return BadRequest("User ID mismatch: The provided user ID does not match the owner of the quiz.");
-            }
+			if (singleQuizFromDb.UserId != userId)
+			{
+				return BadRequest("User ID mismatch: The provided user ID does not match the owner of the quiz.");
+			}
 
-            var singleQuiz = new SingleQuizDto
+            var listQuestionsFromQuiz = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == quizId).ToList();
+
+            var questionId = listQuestionsFromQuiz.Find(x => x.GivenAnswerId == null);
+
+            var questionForQuiz = _context.Quiz_Questions.FirstOrDefault(x => x.Id == questionId.AskedQuestionId);
+
+            var question = new QuizQuestionForSingleQuizDto
             {
-                Id = singleQuizFromDb.Id,
-                UserId = singleQuizFromDb.UserId,
-                Score = singleQuizFromDb.Score,
-                CreateDate = singleQuizFromDb.CreateDate,
-                QuizCompleted = singleQuizFromDb.QuizCompleted,
-                Quiz_Attempts = new List<SingleQuizAttemptDto>(),
-                Question = new List<QuizQuestionDto>()
+                QuestionId = questionForQuiz.Id,
+                QuizId = quizId,
+                QuestionCount = singleQuizFromDb.QuestionCount,
+                QuestionText = questionForQuiz.QuestionText,
+                Answers = new List<QuizAnswersDto>()
             };
 
-            var singleQuizAttempts = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == singleQuizFromDb.Id).ToList();
-            foreach (var attempt in singleQuizAttempts)
+            var answers = _context.Quiz_Question_Answers.Where(x => x.QuestionId == question.QuestionId).ToList();
+
+            foreach (var answer in answers)
             {
-                singleQuiz.Quiz_Attempts.Add(new SingleQuizAttemptDto
+                question.Answers.Add(new QuizAnswersDto
                 {
-                    Id = attempt.Id,
-                    AskedQuestionId = attempt.AskedQuestionId,
-                    GivenAnswerId = attempt.GivenAnswerId,
-                    AnswerDate = attempt.AnswerDate,
+                    Id = answer.Id,
+                    AnswerText = answer.AnswerText,
+                    IsCorrectAnswer = answer.IsCorrectAnswer,
                 });
             }
 
-            var questionIds = singleQuizAttempts.Select(x => x.AskedQuestionId).ToHashSet();
-            var questions = _context.Quiz_Questions.Where(x => questionIds.Contains(x.Id)).ToList();
-            foreach (var quizQuestion in questions)
+            return Ok(question);
+
+		}
+
+        /// <summary>
+        /// Return the result of a quiz session
+        /// </summary>
+        /// <param name="quizId">The quiz id of the needed result</param>
+        /// <param name="userId">The user id of the quiz session how need the result</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetResultFromSingleQuiz")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetResultFromSingleQuiz(int quizId, string userId)
+		{
+			var quizSessionFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == quizId);
+
+			List<string> validationErrors = new List<string>();
+			validationErrors.AddRange(GenericValidators.CheckNullOrDefault(quizSessionFromDb));
+			validationErrors.AddRange(GenericValidators.CheckNullOrDefault(quizId, "id"));
+			validationErrors.AddRange(GenericValidators.CheckNullOrDefault(userId, "userId"));
+			if (validationErrors.Any())
+			{
+				return NotFound(validationErrors);
+			}
+
+            if(!quizSessionFromDb.UserId.Equals(userId))
             {
-                var quizQuestionDto = new QuizQuestionDto
-                {
-                    Id = quizQuestion.Id,
-                    QuestionText = quizQuestion.QuestionText,
-                    UserId = quizQuestion.UserId,
-                    Answers = new List<QuizAnswersDto>()
-                };
-
-                var answersForQuestion = _context.Quiz_Question_Answers.Where(x => x.QuestionId == quizQuestion.Id).ToList();
-
-                foreach (var answer in answersForQuestion)
-                {
-                    quizQuestionDto.Answers.Add(new QuizAnswersDto
-                    {
-                        Id = answer.Id,
-                        AnswerText = answer.AnswerText,
-                        IsCorrectAnswer = answer.IsCorrectAnswer,
-                    });
-                }
-
-                singleQuiz.Question.Add(quizQuestionDto);
+                return BadRequest();
             }
 
-            var questionCountDto = singleQuiz.Question.Count();
+            var quizSession = new ResultSingleQuizDto
+            {
+                Id = quizSessionFromDb.Id,
+                Score = quizSessionFromDb.Score,
+                QuizCompleted = quizSessionFromDb.QuizCompleted,
+                QuestionCount = quizSessionFromDb.QuestionCount
+            };
 
-            singleQuiz.QuestionCount = questionCountDto;
+            return Ok(quizSession);
 
-            return Ok(singleQuiz);
-        }
+		}
 
         /// <summary>
         /// Returns all single Quizzes from specific User
@@ -166,42 +179,62 @@ namespace Project_Quizz_API.Controllers
             return Ok(singleQuizzesFromUser);
         }
 
-        /// <summary>
-        /// Update of an existing quiz session. It is also enough to only send Quiz_Attempts that have been modified
-        /// </summary>
-        /// <param name="updatedSingleQuizSessio">UpdateSingleQuizDto: Single_Quiz and Quiz_Attempts. It is also enough to only send Quiz_Attempts that have been modified</param>
-        /// <returns></returns>
-        [HttpPut]
+		/// <summary>
+		/// Update of an existing quiz session.
+		/// </summary>
+		/// <param name="updateSingleQuizSession"></param>
+		/// <response code="200">When the quiz session has been successfully updated</response>
+		/// <response code="202">When the quiz session is complete and all questions have been answered</response>
+		/// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
+		/// <response code="401">If the user tries to change answers that have already been given</response>
+		[HttpPut]
         [Route("UpdateSingleQuizSession")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdateSingleQuizSession(UpdateSingleQuizDto updatedSingleQuizSessio)
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public IActionResult UpdateSingleQuizSession(UpdateSingleQuizSessionDto updateSingleQuizSession)
         {
-            var singleQuizSessionFromDb = _context.Single_Quizzes.FirstOrDefault(x => x.Id == updatedSingleQuizSessio.Id);
+            var quizSession = _context.Single_Quizzes.FirstOrDefault(x => x.Id == updateSingleQuizSession.QuizId);
+			var answerFromDb = _context.Quiz_Question_Answers.FirstOrDefault(x => x.Id == updateSingleQuizSession.AnswerFromUserId);
+			var attempt = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.SingleQuizId == updateSingleQuizSession.QuizId && x.AskedQuestionId == updateSingleQuizSession.QuestionId);
 
-            var validationErrors = GenericValidators.CheckIfObjectExist(singleQuizSessionFromDb);
-            if(validationErrors.Any())
+			if (quizSession == null || !quizSession.UserId.Equals(updateSingleQuizSession.UserId))
             {
-                return NotFound(validationErrors);
+                return BadRequest();
             }
 
-            singleQuizSessionFromDb.Score = updatedSingleQuizSessio.Score;
-            singleQuizSessionFromDb.QuizCompleted = updatedSingleQuizSessio.QuizCompleted;
-
-            if (updatedSingleQuizSessio.Quiz_Attempts.Count != 0)
+            if (answerFromDb == null || answerFromDb.QuestionId != updateSingleQuizSession.QuestionId)
             {
-                foreach (var quizAttempt in updatedSingleQuizSessio.Quiz_Attempts)
-                {
-                    var quizAttemptFromDb = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.Id == quizAttempt.Id);
-                    if (quizAttemptFromDb != null)
-                    {
-                        quizAttemptFromDb.GivenAnswerId = quizAttempt.GivenAnswerId;
-                        quizAttemptFromDb.AnswerDate = quizAttempt.AnswerDate;
-                    }
-                }
+                return BadRequest();
             }
+
+            if (attempt == null)
+            {
+                return BadRequest();
+            }
+
+            if (attempt.GivenAnswerId != null || quizSession.QuizCompleted == true)
+            {
+                return Unauthorized();
+            }
+
+			if (answerFromDb.IsCorrectAnswer)
+			{
+				quizSession.Score += 5;
+			}
+
+			attempt.GivenAnswerId = updateSingleQuizSession.AnswerFromUserId;
+            attempt.AnswerDate = DateTime.Now;
+            quizSession.QuestionCount -= 1;
 
             _context.SaveChanges();
+
+            if(quizSession.QuestionCount == 0)
+            {
+                quizSession.QuizCompleted = true;
+                return Accepted();
+            }
 
             return Ok();
         }
@@ -211,13 +244,14 @@ namespace Project_Quizz_API.Controllers
         /// </summary>
         /// <param name="userId">The Id from User who will create a single quiz</param>
         /// <param name="categorieId">The Id of the Categorie of the Single Quiz</param>
-        /// <returns></returns>
+        /// <returns>Id of created single quiz</returns>
         [HttpPost]
         [Route("CreateSingleQuizSession")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateSingleQuizSession(string userId, int categorieId)
         {
+            //Muss entfernt werden wenn Kategorien implementiert sind
             if (categorieId == 0)
             {
                 categorieId = 1;
@@ -242,7 +276,11 @@ namespace Project_Quizz_API.Controllers
                 CreateDate = DateTime.Now
             };
 
-            var randomQuestions = _context.Quiz_Questions.OrderBy(q => Guid.NewGuid()).Take(5).ToList();
+            var randomQuestions = _context.Quiz_Questions
+                .Where(x => x.QuizCategorieId == categorieId)
+                .OrderBy(x => Guid.NewGuid())
+                .Take(5)
+                .ToList();
 
             foreach (var question in randomQuestions)
             {
@@ -253,10 +291,12 @@ namespace Project_Quizz_API.Controllers
                 });
             }
 
+            singleQuiz.QuestionCount = randomQuestions.Count;
+
             _context.Add(singleQuiz);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetSingleQuizSession), new { singleQuizId = singleQuiz.Id });
+            return CreatedAtAction(nameof(GetQuestionFromQuizSession), new { singleQuizId = singleQuiz.Id });
         }
     }
 }

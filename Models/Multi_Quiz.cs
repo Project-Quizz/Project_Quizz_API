@@ -9,8 +9,9 @@ namespace Project_Quizz_API.Models
         public DateTime CreateDate { get; set; }
 
         public bool QuizCompleted { get; set; } = false;
+        public int QuestionCount { get; set; }
 
-        [ForeignKey("Quiz_Categorie")]
+		[ForeignKey("Quiz_Categorie")]
         public int QuizCategorieId { get; set; }
 
 

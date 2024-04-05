@@ -29,4 +29,15 @@
 
         public DateTime? AnswerDate { get; set; }
     }
+
+    public class ResultSingleQuizDto
+    {
+		public int Id { get; set; }
+
+		public int Score { get; set; }
+
+		public bool QuizCompleted { get; set; }
+
+		public int? QuestionCount { get; set; }
+	}
 }
