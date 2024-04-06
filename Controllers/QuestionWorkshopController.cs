@@ -168,6 +168,11 @@ namespace Project_Quizz_API.Controllers
                 return BadRequest(validationErrors);
             }
 
+            if (questionDto.UserId != questionFromDb.UserId)
+            {
+                return Unauthorized();
+            }
+
             if (_context.Quiz_Categories.FirstOrDefault(x => x.Id == questionDto.Categorie.CategorieId) == null)
             {
                 return NotFound("Given categorie not found");
