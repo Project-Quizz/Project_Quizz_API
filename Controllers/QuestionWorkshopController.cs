@@ -73,6 +73,37 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
+        /// Get all created questions from user as list
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllQuestionsFromUser")]
+        public IActionResult GetAllQuestionsFromUser(string userId)
+        {
+            var questionsFromDb = _context.Quiz_Questions.Where(x => x.UserId == userId).ToList();
+            var listOfAllQuestions = new List<QuestionFromUserDto>();
+
+            foreach (var question in questionsFromDb)
+            {
+                var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == question.QuizCategorieId);
+
+                listOfAllQuestions.Add(new QuestionFromUserDto
+                {
+                    QuestionId = question.Id,
+                    QuestionText = question.QuestionText,
+                    Categorie = new QuizCategorieDto
+                    {
+                        CategorieId = question.QuizCategorieId,
+                        Name = categorie.Name,
+                    }
+                });
+            }
+
+            return Ok(listOfAllQuestions);
+        }
+
+        /// <summary>
         /// Create a question with the given parameters. It's essential to provide exactly four answers. 
         /// </summary>
         /// <param name="questionDto">The data transfer object containing the question and its answers.</param>
@@ -135,6 +166,11 @@ namespace Project_Quizz_API.Controllers
             if (validationErrors.Any())
             {
                 return BadRequest(validationErrors);
+            }
+
+            if (questionDto.UserId != questionFromDb.UserId)
+            {
+                return Unauthorized();
             }
 
             if (_context.Quiz_Categories.FirstOrDefault(x => x.Id == questionDto.Categorie.CategorieId) == null)
