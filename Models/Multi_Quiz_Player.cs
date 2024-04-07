@@ -12,10 +12,11 @@ namespace Project_Quizz_API.Models
         public string UserId { get; set; }
 
         public int Score { get; set; }
+		public int QuestionCount { get; set; } = 0;
 
 
 
-        public virtual Multi_Quiz Multi_Quiz { get; set; }
+		public virtual Multi_Quiz Multi_Quiz { get; set; }
         public virtual ICollection<Multi_Quiz_Attempt> Multi_Quiz_Attempts { get; set; }
     }
 }

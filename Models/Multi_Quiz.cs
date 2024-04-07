@@ -9,6 +9,7 @@ namespace Project_Quizz_API.Models
         public DateTime CreateDate { get; set; }
 
         public bool QuizCompleted { get; set; } = false;
+
         public int QuestionCount { get; set; }
 
 		[ForeignKey("Quiz_Categorie")]
@@ -16,7 +17,7 @@ namespace Project_Quizz_API.Models
 
 
 
-        public virtual ICollection<Multi_Quiz_Player> Multi_Quiz_Players { get; set; }
+		public virtual ICollection<Multi_Quiz_Player> Multi_Quiz_Players { get; set; }
         public virtual ICollection<Multi_Quiz_Attempt> Multi_Quiz_Attempts { get; set; }
         public virtual Quiz_Categorie Quiz_Categorie { get; set; }
     }

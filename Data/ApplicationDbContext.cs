@@ -98,7 +98,7 @@ namespace Project_Quizz_API.Data
             builder.Entity <Multi_Quiz_Attempt>()
                 .HasOne(a => a.Quiz_Question_Answer)
                 .WithMany()
-                .HasForeignKey(a => a.AskedQuestionId)
+                .HasForeignKey(a => a.GivenAnswerId)
                 .OnDelete(DeleteBehavior.NoAction);
                 
         }
