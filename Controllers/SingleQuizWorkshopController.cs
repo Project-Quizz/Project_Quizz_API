@@ -233,6 +233,7 @@ namespace Project_Quizz_API.Controllers
             if(quizSession.QuestionCount == 0)
             {
                 quizSession.QuizCompleted = true;
+                _context.SaveChanges();
                 return Accepted();
             }
 

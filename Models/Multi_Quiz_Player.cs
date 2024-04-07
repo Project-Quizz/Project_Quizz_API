@@ -13,6 +13,7 @@ namespace Project_Quizz_API.Models
 
         public int Score { get; set; }
 		public int QuestionCount { get; set; } = 0;
+        public bool QuizComplete { get; set; } = false;
 
 
 

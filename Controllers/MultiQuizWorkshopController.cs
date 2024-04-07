@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Validations;
 using Project_Quizz_API.Data;
 using Project_Quizz_API.Models;
 using Project_Quizz_API.Models.DTOs;
@@ -18,6 +19,52 @@ namespace Project_Quizz_API.Controllers
         {
 			_context = context;            
         }
+
+		/// <summary>
+		/// Overview of all multiquizzes from user
+		/// </summary>
+		/// <param name="userId">Id from user</param>
+		/// <returns></returns>
+		[HttpGet]
+		[Route("GetMultiQuizzesFromUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetMultiQuizzesFromUser(string userId)
+		{
+			var result = new List<GetMultiQuizzesFromUserDto>();
+			var multiQuizPlayer = _context.Multi_Quiz_Players.Where(x => x.UserId == userId).ToList();
+			var categories = _context.Quiz_Categories.ToList();
+
+			try
+			{
+                foreach (var multiSession in multiQuizPlayer)
+                {
+                    var QuizId = multiSession.MultiQuizId;
+                    var categorieId = _context.Multi_Quizzes.FirstOrDefault(x => x.Id == QuizId).QuizCategorieId;
+					var opponendUserId = _context.Multi_Quiz_Players.FirstOrDefault(x => x.MultiQuizId == QuizId && x.UserId != userId);
+
+
+                    result.Add(new GetMultiQuizzesFromUserDto
+                    {
+                        MultiQuizId = QuizId,
+                        QuizCreated = _context.Multi_Quizzes.FirstOrDefault(x => x.Id == QuizId).CreateDate,
+                        UserCompletedQuiz = multiSession.QuizComplete,
+                        Score = multiSession.Score,
+						OpponentUser = opponendUserId.UserId,
+                        Categorie = new QuizCategorieDto()
+                        {
+                            CategorieId = categorieId,
+                            Name = categories.FirstOrDefault(x => x.Id == categorieId).Name
+                        }
+                    });
+                }
+            } catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+
+			return Ok(result);
+		}
 
 		/// <summary>
 		/// Returns next question for multiplayer quiz for specific user
@@ -71,6 +118,121 @@ namespace Project_Quizz_API.Controllers
 			}
 
 			return Ok(question);
+		}
+
+        /// <summary>
+        /// Return the Result of a multi quizz session from one specific user
+        /// </summary>
+        /// <param name="quizId">Id of the quiz</param>
+        /// <param name="userId">Id of the user</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetResultFromMultiQuiz")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetResultFromMultiQuiz(int quizId, string userId)
+        {
+            var quizSessionFromUser = _context.Multi_Quiz_Players.FirstOrDefault(x => x.MultiQuizId == quizId && x.UserId == userId);
+            var multiQuiz = _context.Multi_Quizzes.FirstOrDefault(x => x.Id == quizId);
+            var opponentQuizObj = _context.Multi_Quiz_Players.FirstOrDefault(x => x.MultiQuizId == quizId && x.UserId != userId);
+
+            List<string> validationErrors = new List<string>();
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(quizSessionFromUser));
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(multiQuiz));
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(opponentQuizObj));
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(quizId, "id"));
+            validationErrors.AddRange(GenericValidators.CheckNullOrDefault(userId, "userId"));
+            if (validationErrors.Any())
+            {
+                return NotFound(validationErrors);
+            }
+
+            var quizSession = new ResultMultiQuizDto
+            {
+                Id = quizId,
+                Score = quizSessionFromUser.Score,
+                QuizCompleted = quizSessionFromUser.QuizComplete,
+                QuestionCount = quizSessionFromUser.QuestionCount,
+                MultiQuizComplete = multiQuiz.QuizCompleted,
+                Opponent = new OpponentDto
+                {
+                    UserId = opponentQuizObj.UserId,
+                    Score = opponentQuizObj.Score,
+                    QuizComplete = opponentQuizObj.QuizComplete
+                }
+            };
+
+            return Ok(quizSession);
+
+
+        }
+
+        /// <summary>
+        /// Update of an existing quiz session.
+        /// </summary>
+        /// <param name="updateMultiQuizSession"></param>
+        /// <returns></returns>
+        /// <response code="200">When the quiz session has been successfully updated</response>
+        /// <response code="202">When the quiz session is complete and all questions have been answered</response>
+        /// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
+        /// <response code="401">If the user tries to change answers that have already been given</response>
+        [HttpPut]
+		[Route("UpdateMultiQuizSession")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status202Accepted)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public IActionResult UpdateMultiQuizSession(UpdateMultiQuizSessionDto updateMultiQuizSession)
+		{
+			var quizSessionFromPlayer = _context.Multi_Quiz_Players.FirstOrDefault(x => x.UserId == updateMultiQuizSession.UserId && x.MultiQuizId == updateMultiQuizSession.QuizId);
+			var answerFromDb = _context.Quiz_Question_Answers.FirstOrDefault(x => x.Id == updateMultiQuizSession.AnswerFromUserId);
+			var attempt = _context.Multi_Quiz_Attempts.FirstOrDefault(x => x.MultiQuizId == updateMultiQuizSession.QuizId && x.AskedQuestionId == updateMultiQuizSession.QuestionId && x.MultiQuizPlayerId == quizSessionFromPlayer.Id);
+			var multiQuiz = _context.Multi_Quizzes.FirstOrDefault(x => x.Id == updateMultiQuizSession.QuizId);
+
+			if(quizSessionFromPlayer == null || !quizSessionFromPlayer.UserId.Equals(updateMultiQuizSession.UserId))
+			{
+				return BadRequest();
+			}
+
+			if (answerFromDb == null || answerFromDb.QuestionId != updateMultiQuizSession.QuestionId)
+			{
+				return BadRequest();
+			}
+
+			if (attempt == null || multiQuiz == null)
+			{
+				return BadRequest();
+			}
+
+			if (attempt.GivenAnswerId != null || quizSessionFromPlayer.QuizComplete == true)
+			{
+				return Unauthorized();
+			}
+
+			if (answerFromDb.IsCorrectAnswer)
+			{
+				quizSessionFromPlayer.Score += 5;
+			}
+
+			attempt.GivenAnswerId = updateMultiQuizSession.AnswerFromUserId;
+			attempt.AnswerDate = DateTime.Now;
+			quizSessionFromPlayer.QuestionCount -= 1;
+
+			_context.SaveChanges();
+
+			if (quizSessionFromPlayer.QuestionCount == 0)
+			{
+				quizSessionFromPlayer.QuizComplete = true;
+				var allPlayersFromQuiz = _context.Multi_Quiz_Players.Where(x => x.MultiQuizId == updateMultiQuizSession.QuizId).ToList();
+				if(allPlayersFromQuiz.All(x => x.QuizComplete))
+				{
+					multiQuiz.QuizCompleted = true;
+				}
+				_context.SaveChanges();
+				return Accepted();
+			}
+
+			return Ok();
 		}
 
         /// <summary>
