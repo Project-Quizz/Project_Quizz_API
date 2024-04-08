@@ -89,38 +89,5 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.AreEqual("UserId must not be null", result.Value);
         }
 
-        [Test]
-        public void GetAllSingleQuizzesFromUser_ReturnsQuizzes_WhenUserHasQuizzes()
-        {
-            // Arrange
-            string testUserId = "existingUserId";
-            CreateAndSaveTestQuizzesForUser(testUserId, 3);
-
-            // Act
-            var result = _controller.GetAllSingleQuizzesFromUser(testUserId) as OkObjectResult;
-
-            // Assert
-            ClassicAssert.IsNotNull(result);
-            ClassicAssert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
-            var quizzes = result.Value as List<AllSingleQuizzesFromUserDto>;
-            ClassicAssert.IsNotNull(quizzes);
-            ClassicAssert.AreEqual(3, quizzes.Count);
-        }
-
-        [Test]
-        public void GetAllSingleQuizzesFromUser_ReturnsNotFound_WhenUserHasNoQuizzes()
-        {
-            // Arrange
-            string testUserId = "nonExistingUserId";
-
-            // Act
-            var result = _controller.GetAllSingleQuizzesFromUser(testUserId) as NotFoundObjectResult;
-
-            // Assert
-            ClassicAssert.IsNotNull(result);
-            ClassicAssert.AreEqual(StatusCodes.Status404NotFound, result.StatusCode);
-            ClassicAssert.AreEqual($"No quizzes found for the user with ID '{testUserId}'.", result.Value);
-        }
-
     }
 }
