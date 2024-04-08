@@ -120,74 +120,55 @@ namespace Project_Quizz_API.Controllers
 		}
 
         /// <summary>
-        /// Returns all single Quizzes from specific User
+        /// Overview of all singlequizzes from user
         /// </summary>
-        /// <param name="userId">The userId from the specific User</param>
+        /// <param name="userId">Id from user</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetAllSingleQuizzesFromUser")]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetAllSingleQuizzesFromUser(string userId)
+        [Route("GetSingleQuizzesFromUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetSingleQuizzesFromUser (string userId)
         {
-            var allSingleQuizzesFromDb = _context.Single_Quizzes.Where(x => x.UserId == userId).ToList();
-            if (allSingleQuizzesFromDb.Count == 0)
+            var result = new List<GetSingleQuizzesFromUserDto>();
+            var quizzesFromPlayer = _context.Single_Quizzes.Where(x => x.UserId == userId).ToList();
+            var categories = _context.Quiz_Categories.ToList();
+
+            try
             {
-                return NotFound($"No quizzes found for the user with ID '{userId}'.");
-            }
-
-            var singleQuizzesFromUser = new List<AllSingleQuizzesFromUserDto>();
-
-            foreach (var singleQuiz in allSingleQuizzesFromDb)
-            {
-                var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == singleQuiz.QuizCategorieId);
-
-                if (categorie == null)
+                foreach(var singleSession in quizzesFromPlayer)
                 {
-                    return NotFound($"Categorie for Single Quiz with Id {singleQuiz.Id} not found. Categorie Id {singleQuiz.QuizCategorieId}");
-                }
+                    var categorieId = singleSession.QuizCategorieId;
 
-                var buildedSingleQuiz = new AllSingleQuizzesFromUserDto
-                {
-                    Id = singleQuiz.Id,
-                    UserId = singleQuiz.UserId,
-                    Score = singleQuiz.Score,
-                    CreateDate = singleQuiz.CreateDate,
-                    QuizCompleted = singleQuiz.QuizCompleted,
-                    Categorie = new AllSingleQuizzesCategorieDto
+                    result.Add(new GetSingleQuizzesFromUserDto
                     {
-                        CategorieId = categorie.Id,
-                        Name = categorie.Name
-                    },
-                    Quiz_Attempts = new List<AllSingleQuizzesAttemptDto>()
-                };
-
-                var singleQuizAttempts = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == singleQuiz.Id);
-                foreach (var attempt in singleQuizAttempts)
-                {
-                    buildedSingleQuiz.Quiz_Attempts.Add(new AllSingleQuizzesAttemptDto
-                    {
-                        Id = attempt.Id,
-                        AskedQuestionId = attempt.AskedQuestionId,
-                        GivenAnswerId = attempt.GivenAnswerId,
-                        AnswerDate = attempt.AnswerDate,
+                        QuizId = singleSession.Id,
+                        QuizCreated = singleSession.CreateDate,
+                        UserCompletedQuiz = singleSession.QuizCompleted,
+                        Score = singleSession.Score,
+                        Categorie = new QuizCategorieDto()
+                        {
+                            CategorieId = categorieId,
+                            Name = categories.FirstOrDefault(x => x.Id == categorieId).Name
+                        }
                     });
                 }
-
-                singleQuizzesFromUser.Add(buildedSingleQuiz);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
-
-            return Ok(singleQuizzesFromUser);
+            return Ok(result);
         }
 
-		/// <summary>
-		/// Update of an existing quiz session.
-		/// </summary>
-		/// <param name="updateSingleQuizSession"></param>
-		/// <response code="200">When the quiz session has been successfully updated</response>
-		/// <response code="202">When the quiz session is complete and all questions have been answered</response>
-		/// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
-		/// <response code="401">If the user tries to change answers that have already been given</response>
-		[HttpPut]
+        /// <summary>
+        /// Update of an existing quiz session.
+        /// </summary>
+        /// <param name="updateSingleQuizSession"></param>
+        /// <response code="200">When the quiz session has been successfully updated</response>
+        /// <response code="202">When the quiz session is complete and all questions have been answered</response>
+        /// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
+        /// <response code="401">If the user tries to change answers that have already been given</response>
+        [HttpPut]
         [Route("UpdateSingleQuizSession")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -233,6 +214,7 @@ namespace Project_Quizz_API.Controllers
             if(quizSession.QuestionCount == 0)
             {
                 quizSession.QuizCompleted = true;
+                _context.SaveChanges();
                 return Accepted();
             }
 
