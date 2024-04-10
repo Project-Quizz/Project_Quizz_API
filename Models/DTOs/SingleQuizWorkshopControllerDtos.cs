@@ -35,7 +35,12 @@
     {
         public int QuizId { get; set; }
         public int QuestionId { get; set; }
-        public int AnswerFromUserId { get; set; }
-        public string UserId { get; set; }
+		public List<SingleQuizGivenAnswerIdsDto> GivenAnswerIds { get; set; }
+		public string UserId { get; set; }
     }
+
+	public class SingleQuizGivenAnswerIdsDto
+	{
+		public int QuizQuestionAnswerId { get; set; }
+	}
 }

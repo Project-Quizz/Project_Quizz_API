@@ -26,11 +26,16 @@
 	{
 		public int QuizId { get; set; }
 		public int QuestionId { get; set; }
-		public int AnswerFromUserId { get; set; }
+		public List<MultiQuizGivenAnswerIdsDto> GivenAnswerIds { get; set; }
 		public string UserId { get; set; }
 	}
 
-	public class ResultMultiQuizDto
+    public class MultiQuizGivenAnswerIdsDto
+    {
+		public int QuizQuestionAnswerId { get; set; }
+	}
+
+    public class ResultMultiQuizDto
 	{
 		public int Id { get; set; }
 

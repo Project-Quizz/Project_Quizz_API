@@ -50,7 +50,7 @@ namespace Project_Quizz_API.Controllers
 
             var listQuestionsFromQuiz = _context.Single_Quiz_Attempts.Where(x => x.SingleQuizId == quizId).ToList();
 
-            var questionId = listQuestionsFromQuiz.Find(x => x.GivenAnswerId == null);
+            var questionId = listQuestionsFromQuiz.Find(x => x.AnswerDate == null);
 
             var questionForQuiz = _context.Quiz_Questions.FirstOrDefault(x => x.Id == questionId.AskedQuestionId);
 
@@ -177,15 +177,11 @@ namespace Project_Quizz_API.Controllers
 		public IActionResult UpdateSingleQuizSession(UpdateSingleQuizSessionDto updateSingleQuizSession)
         {
             var quizSession = _context.Single_Quizzes.FirstOrDefault(x => x.Id == updateSingleQuizSession.QuizId);
-			var answerFromDb = _context.Quiz_Question_Answers.FirstOrDefault(x => x.Id == updateSingleQuizSession.AnswerFromUserId);
+			var answerIds = updateSingleQuizSession.GivenAnswerIds.Select(a => a.QuizQuestionAnswerId).ToList();
+			var answersFromDb = _context.Quiz_Question_Answers.Where(answer => answerIds.Contains(answer.Id)).ToList();
 			var attempt = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.SingleQuizId == updateSingleQuizSession.QuizId && x.AskedQuestionId == updateSingleQuizSession.QuestionId);
 
 			if (quizSession == null || !quizSession.UserId.Equals(updateSingleQuizSession.UserId))
-            {
-                return BadRequest();
-            }
-
-            if (answerFromDb == null || answerFromDb.QuestionId != updateSingleQuizSession.QuestionId)
             {
                 return BadRequest();
             }
@@ -195,18 +191,33 @@ namespace Project_Quizz_API.Controllers
                 return BadRequest();
             }
 
-            if (attempt.GivenAnswerId != null || quizSession.QuizCompleted == true)
+            if (attempt.AnswerDate != null || quizSession.QuizCompleted == true)
             {
                 return Unauthorized();
             }
 
-			if (answerFromDb.IsCorrectAnswer)
+			foreach (var answer in answersFromDb)
 			{
-				quizSession.Score += 5;
+				if (answer == null || answer.QuestionId != updateSingleQuizSession.QuestionId)
+				{
+					return BadRequest();
+				}
+
+				if (answer.IsCorrectAnswer)
+				{
+					quizSession.Score += 5;
+				}
+
+				var newAnswer = new Single_Given_Answer_Attepmt
+				{
+					SingleQuizAttemptId = attempt.Id,
+					QuizQuestionAnswerId = answer.Id
+				};
+
+				_context.Single_Given_Answer_Attepmts.Add(newAnswer);
 			}
 
-			attempt.GivenAnswerId = updateSingleQuizSession.AnswerFromUserId;
-            attempt.AnswerDate = DateTime.Now;
+			attempt.AnswerDate = DateTime.Now;
             quizSession.QuestionCount -= 1;
 
             _context.SaveChanges();
