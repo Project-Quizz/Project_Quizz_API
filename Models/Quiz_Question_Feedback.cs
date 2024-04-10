@@ -6,7 +6,6 @@ namespace Project_Quizz_API.Models
 	{
 		public int Id { get; set; }
 
-
 		[ForeignKey("Quiz_Question")]
 		public int QuestionId { get; set; }
 		public virtual Quiz_Question Quiz_Question { get; set; }
