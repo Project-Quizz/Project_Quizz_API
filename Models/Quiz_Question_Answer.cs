@@ -18,5 +18,7 @@ namespace Project_Quizz_API.Models
         public bool IsCorrectAnswer { get; set; }
 
         public virtual Quiz_Question Quiz_Question { get; set; }
-    }
+		public virtual ICollection<Multi_Given_Answer_Attempt> MultiQuizAttemptAnswers { get; set; }
+		public virtual ICollection<Single_Given_Answer_Attepmt> SingleQuizAttemptAnswers { get; set; }
+	}
 }
