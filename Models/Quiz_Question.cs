@@ -16,9 +16,13 @@ namespace Project_Quizz_API.Models
 
         [ForeignKey("Quiz_Categorie")]
         public int QuizCategorieId { get; set; }
+		public virtual Quiz_Categorie Quiz_Categorie { get; set; }
 
-        public virtual ICollection<Quiz_Question_Answer> Answers { get; set; }
 
-        public virtual Quiz_Categorie Quiz_Categorie { get; set; }
+
+		public virtual ICollection<Quiz_Question_Answer> Answers { get; set; }
+
+		public virtual ICollection<Quiz_Question_Feedback> Question_Feedback { get; set; }
+
     }
 }

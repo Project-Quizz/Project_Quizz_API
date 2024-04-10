@@ -16,6 +16,7 @@ namespace Project_Quizz_API.Data
 		public virtual DbSet<Multi_Quiz_Attempt> Multi_Quiz_Attempts { get; set; }
 		public virtual DbSet<Multi_Given_Answer_Attempt> Multi_Given_Answer_Attempts { get; set; }
 		public virtual DbSet<Single_Given_Answer_Attepmt> Single_Given_Answer_Attepmts { get; set; }
+		public virtual DbSet<Quiz_Question_Feedback> Quiz_Question_Feedbacks { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
@@ -28,6 +29,12 @@ namespace Project_Quizz_API.Data
 
 			builder.Entity<Quiz_Question>()
 				.HasMany(q => q.Answers)
+				.WithOne(a => a.Quiz_Question)
+				.HasForeignKey(q => q.QuestionId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			builder.Entity<Quiz_Question>()
+				.HasMany(a => a.Question_Feedback)
 				.WithOne(a => a.Quiz_Question)
 				.HasForeignKey(q => q.QuestionId)
 				.OnDelete(DeleteBehavior.Cascade);

@@ -6,9 +6,11 @@ namespace Project_Quizz_API.Models
 	{
 		public int Id { get; set; }
 
+
 		[ForeignKey("Single_Quiz_Attempt")]
 		public int SingleQuizAttemptId { get; set; }
 		public virtual Single_Quiz_Attempt Single_Quiz_Attempt { get; set; }
+
 
 		[ForeignKey("Quiz_Question_Answer")]
 		public int QuizQuestionAnswerId { get; set; }
