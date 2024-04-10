@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Project_Quizz_API.Data;
 using Project_Quizz_API.Models;
 using Project_Quizz_API.Models.DTOs;
@@ -22,7 +23,7 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Returns the Quiz_Question with all Answers
+        /// Returns the Quiz_Question with all Answers (without question feedbacks)
         /// </summary>
         /// <param name="id">Id from Quiz_Qestion</param>
         /// <returns>
@@ -73,11 +74,43 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Get all created questions from user as list
+        /// Getall feedbacks from specific question
         /// </summary>
-        /// <param name="userId">User id</param>
+        /// <param name="questionId">Question id</param>
         /// <returns></returns>
         [HttpGet]
+        [Route("GetQuestionFeedbacks")]
+        public IActionResult GetQuestionFeedbacks(int questionId)
+        {
+            if (questionId == 0 
+                || _context.Quiz_Questions.FirstOrDefault(x => x.Id == questionId) == null)
+            {
+                return BadRequest();
+            }
+
+            var feedbacksForQuestion = _context.Quiz_Question_Feedbacks.Where(x => x.QuestionId == questionId).ToList();
+            var feedbackList = new List<GetQuizQuestionFeedbackDto>();
+
+            foreach (var feedback in feedbacksForQuestion)
+            {
+                feedbackList.Add(new GetQuizQuestionFeedbackDto
+                {
+                    QuestionId = questionId,
+                    Feedback = feedback.Feedback,
+                    UserId = feedback.UserId,
+                    CreateDate = feedback.CreateDate
+                });
+            }
+
+            return Ok(feedbackList);
+        }
+
+		/// <summary>
+		/// Get all created questions from user as list
+		/// </summary>
+		/// <param name="userId">User id</param>
+		/// <returns></returns>
+		[HttpGet]
         [Route("GetAllQuestionsFromUser")]
         public IActionResult GetAllQuestionsFromUser(string userId)
         {
@@ -146,7 +179,51 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Updates an existing quiz question and its answers based on the provided data.
+        /// Create feeedback for spezific question
+        /// </summary>
+        /// <param name="givenFeedback">Dto object wit QuestionId the Feedback and UserId</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("CreateFeedbackForQuestion")]
+        public IActionResult CreateFeedbackForQuestion(QuizQuestionFeedbackDto givenFeedback)
+        {
+            if ( givenFeedback == null 
+                || givenFeedback.Feedback.IsNullOrEmpty()
+                || givenFeedback.UserId.IsNullOrEmpty())
+            {
+                return BadRequest();
+            }
+
+            var questionFromDb = _context.Quiz_Questions.FirstOrDefault(x => x.Id == givenFeedback.QuestionId);
+            if (questionFromDb == null)
+            {
+                return NotFound();  
+            }
+            
+            try
+            {
+				var newFeedback = new Quiz_Question_Feedback
+				{
+					QuestionId = questionFromDb.Id,
+					Feedback = givenFeedback.Feedback,
+					UserId = givenFeedback.UserId,
+					CreateDate = DateTime.Now
+				};
+
+				_context.Quiz_Question_Feedbacks.Add(newFeedback);
+				_context.SaveChanges();
+
+				return Ok();
+			}
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// Updates an existing quiz question and its answers based on the provided data (without question feedback)
         /// </summary>
         /// <param name="questionDto">The data transfer object containing the updated information for the quiz question and its answers. </param>
         /// <returns></returns>
@@ -207,6 +284,7 @@ namespace Project_Quizz_API.Controllers
         /// <param name="questionId">The ID of the quiz question to be deleted.</param>
         /// <returns></returns>
         [HttpDelete]
+        [Route("DeleteQuestion")]
         public IActionResult DeleteQuestion(int questionId)
         {
             var questionFromDb = _context.Quiz_Questions.Include(a => a.Answers).FirstOrDefault(x => x.Id == questionId);
