@@ -50,4 +50,19 @@
         public string QuestionText { get; set; }
         public List<QuizAnswersDto> Answers { get; set; }
     }
+
+    public class QuizQuestionFeedbackDto
+    {
+        public int QuestionId { get; set; }
+        public string Feedback { get; set; }
+        public string UserId { get; set; }
+    }
+
+	public class GetQuizQuestionFeedbackDto
+	{
+		public int QuestionId { get; set; }
+		public string Feedback { get; set; }
+		public string UserId { get; set; }
+        public DateTime CreateDate { get; set; }
+	}
 }
