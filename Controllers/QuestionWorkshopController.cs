@@ -87,6 +87,7 @@ namespace Project_Quizz_API.Controllers
             foreach (var question in questionsFromDb)
             {
                 var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == question.QuizCategorieId);
+                var feedbackCount = _context.Quiz_Question_Feedbacks.Where(x => x.QuestionId == question.Id).Count();
 
                 listOfAllQuestions.Add(new QuestionFromUserDto
                 {
@@ -96,7 +97,8 @@ namespace Project_Quizz_API.Controllers
                     {
                         CategorieId = question.QuizCategorieId,
                         Name = categorie.Name,
-                    }
+                    },
+                    FeedbackCount = feedbackCount
                 });
             }
 

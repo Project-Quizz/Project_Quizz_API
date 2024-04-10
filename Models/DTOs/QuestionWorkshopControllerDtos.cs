@@ -5,6 +5,7 @@
         public int QuestionId { get; set; }
         public string QuestionText { get; set; }
         public QuizCategorieDto Categorie { get; set; }
+        public int FeedbackCount { get; set; }
     }
 
     public class CreateQuizQuestionDto
