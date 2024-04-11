@@ -29,6 +29,9 @@ namespace Project_Quizz_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetUserProgressInformation")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetUserProgressInformation(string userId)
         {
             if(userId.IsNullOrEmpty())
@@ -54,6 +57,8 @@ namespace Project_Quizz_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetHigscroeData")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetHigscroeData()
         {
             try
