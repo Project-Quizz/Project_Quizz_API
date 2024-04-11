@@ -189,8 +189,9 @@ namespace Project_Quizz_API.Controllers
 			var answersFromDb = _context.Quiz_Question_Answers.Where(answer => answerIds.Contains(answer.Id)).ToList();
 			var attempt = _context.Multi_Quiz_Attempts.FirstOrDefault(x => x.MultiQuizId == updateMultiQuizSession.QuizId && x.AskedQuestionId == updateMultiQuizSession.QuestionId && x.MultiQuizPlayerId == quizSessionFromPlayer.Id);
 			var multiQuiz = _context.Multi_Quizzes.FirstOrDefault(x => x.Id == updateMultiQuizSession.QuizId);
+            var matchOverview = _context.Quiz_Match_Overview_Users.FirstOrDefault(x => x.UserId == updateMultiQuizSession.UserId);
 
-			if(quizSessionFromPlayer == null || !quizSessionFromPlayer.UserId.Equals(updateMultiQuizSession.UserId))
+            if (quizSessionFromPlayer == null || !quizSessionFromPlayer.UserId.Equals(updateMultiQuizSession.UserId))
 			{
 				return BadRequest();
 			}
@@ -205,19 +206,34 @@ namespace Project_Quizz_API.Controllers
 				return Unauthorized();
 			}
 
-			foreach (var answer in answersFromDb)
+            if (matchOverview == null)
+            {
+                var newMatchOverview = new Quiz_Match_Overview_User
+                {
+                    UserId = updateMultiQuizSession.UserId,
+                };
+
+                _context.Quiz_Match_Overview_Users.Add(newMatchOverview);
+                matchOverview = newMatchOverview;
+                _context.SaveChanges();
+            }
+
+            var correctAnswerCount = _context.Quiz_Question_Answers.Where(x => x.QuestionId == updateMultiQuizSession.QuestionId && x.IsCorrectAnswer == true).Count();
+            var correctAnswerFromUserCount = 0;
+
+            foreach (var answer in answersFromDb)
 			{
 				if (answer == null || answer.QuestionId != updateMultiQuizSession.QuestionId)
 				{
 					return BadRequest();
 				}
 
-				if (answer.IsCorrectAnswer)
-				{
-					quizSessionFromPlayer.Score += 5;
-				}
+                if (answer.IsCorrectAnswer)
+                {
+                    correctAnswerFromUserCount++;
+                }
 
-				var newAnswer = new Multi_Given_Answer_Attempt
+                var newAnswer = new Multi_Given_Answer_Attempt
 				{
 					MultiQuizAttemptId = attempt.Id,
 					QuizQuestionAnswerId = answer.Id
@@ -226,7 +242,12 @@ namespace Project_Quizz_API.Controllers
 				_context.Multi_Given_Answer_Attempts.Add(newAnswer);
 			}
 
-			attempt.AnswerDate = DateTime.Now;
+            if (correctAnswerCount == correctAnswerFromUserCount)
+            {
+                quizSessionFromPlayer.Score += 5;
+            }
+
+            attempt.AnswerDate = DateTime.Now;
 			quizSessionFromPlayer.QuestionCount -= 1;
 
 			_context.SaveChanges();
@@ -239,7 +260,24 @@ namespace Project_Quizz_API.Controllers
 				{
 					multiQuiz.QuizCompleted = true;
 				}
-				_context.SaveChanges();
+                matchOverview.TotalPointsMulti += quizSessionFromPlayer.Score;
+                matchOverview.TotalPoints += quizSessionFromPlayer.Score;
+                matchOverview.TotalMultiGamesCount++;
+
+                if (quizSessionFromPlayer.Score >= 20)
+                {
+					matchOverview.MultiGoldCount ++;
+                }
+                else if (quizSessionFromPlayer.Score >= 10 && quizSessionFromPlayer.Score < 20)
+                {
+                    matchOverview.MultiSilverCount++;
+                }
+                else
+                {
+                    matchOverview.MultiBronzeCount++;
+                }
+
+                _context.SaveChanges();
 				return Accepted();
 			}
 

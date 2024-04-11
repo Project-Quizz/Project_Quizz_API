@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Project_Quizz_API.Models;
 
 namespace Project_Quizz_API.Data
@@ -17,6 +18,7 @@ namespace Project_Quizz_API.Data
 		public virtual DbSet<Multi_Given_Answer_Attempt> Multi_Given_Answer_Attempts { get; set; }
 		public virtual DbSet<Single_Given_Answer_Attepmt> Single_Given_Answer_Attepmts { get; set; }
 		public virtual DbSet<Quiz_Question_Feedback> Quiz_Question_Feedbacks { get; set; }
+		public virtual DbSet<Quiz_Match_Overview_User> Quiz_Match_Overview_Users { get; set; }
 
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
