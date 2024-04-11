@@ -48,19 +48,6 @@ namespace Project_Quizz_API.Controllers
             return Ok(result);
         }
 
-        private int GetPointWorth(int totalPoints, int playCount)
-        {
-            var result = totalPoints / playCount;
-
-            if (playCount < 6)
-            {
-                var pointWorthFactor = result / 1.5;
-                result = (int)Math.Round(pointWorthFactor);
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// Get highscore data of all users
         /// </summary>
@@ -98,6 +85,23 @@ namespace Project_Quizz_API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        private int GetPointWorth(int totalPoints, int playCount)
+        {
+            if (playCount == 0)
+            {
+                return 0;
+            }
+
+            var result = totalPoints / playCount;
+            if (playCount < 6)
+            {
+                var pointWorthFactor = result / 1.5;
+                result = (int)Math.Round(pointWorthFactor);
+            }
+
+            return result;
         }
     }
 }
