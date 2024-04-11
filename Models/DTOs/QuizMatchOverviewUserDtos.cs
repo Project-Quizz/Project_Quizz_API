@@ -17,4 +17,15 @@
         public int MultiSilverCount { get; set; }
         public int MultiBronzeCount { get; set; }
     }
+
+    public class HighscoreDataDto
+    {
+        public string UserId { get; set; }
+        public int TotalGames { get; set; }
+        public int TotalSingleGames { get; set; }
+        public int TotalMultiGames { get; set; }
+        public int TotalPointWorth { get; set; }
+        public int TotalPointWorthSingle { get; set;}
+        public int TotalPointWorthMulti { get; set; }
+    }
 }

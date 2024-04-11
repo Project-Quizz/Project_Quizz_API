@@ -22,6 +22,11 @@ namespace Project_Quizz_API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get user statistics of quiz sessions
+        /// </summary>
+        /// <param name="userId">User id from user</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetUserProgressInformation")]
         public IActionResult GetUserProgressInformation(string userId)
@@ -41,6 +46,58 @@ namespace Project_Quizz_API.Controllers
             var result = _mapper.Map<QuizMatchOverviewUserDto>(userInformation);
 
             return Ok(result);
+        }
+
+        private int GetPointWorth(int totalPoints, int playCount)
+        {
+            var result = totalPoints / playCount;
+
+            if (playCount < 6)
+            {
+                var pointWorthFactor = result / 1.5;
+                result = (int)Math.Round(pointWorthFactor);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get highscore data of all users
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetHigscroeData")]
+        public IActionResult GetHigscroeData()
+        {
+            try
+            {
+                var result = new List<HighscoreDataDto>();
+                var allUsersData = _context.Quiz_Match_Overview_Users.ToList();
+
+                foreach (var user in allUsersData)
+                {
+                    var totalGames = user.TotalMultiGamesCount + user.TotalSingleGamesCount;
+
+                    var userData = new HighscoreDataDto
+                    {
+                        UserId = user.UserId,
+                        TotalGames = totalGames,
+                        TotalMultiGames = user.TotalMultiGamesCount,
+                        TotalSingleGames = user.TotalSingleGamesCount,
+                        TotalPointWorth = GetPointWorth(user.TotalPoints, totalGames),
+                        TotalPointWorthSingle = GetPointWorth(user.TotalPointsSingle, user.TotalSingleGamesCount),
+                        TotalPointWorthMulti = GetPointWorth(user.TotalPointsMulti, user.TotalMultiGamesCount),
+                    };
+
+                    result.Add(userData);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
