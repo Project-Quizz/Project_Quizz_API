@@ -180,6 +180,7 @@ namespace Project_Quizz_API.Controllers
 			var answerIds = updateSingleQuizSession.GivenAnswerIds.Select(a => a.QuizQuestionAnswerId).ToList();
 			var answersFromDb = _context.Quiz_Question_Answers.Where(answer => answerIds.Contains(answer.Id)).ToList();
 			var attempt = _context.Single_Quiz_Attempts.FirstOrDefault(x => x.SingleQuizId == updateSingleQuizSession.QuizId && x.AskedQuestionId == updateSingleQuizSession.QuestionId);
+            var matchOverview = _context.Quiz_Match_Overview_Users.FirstOrDefault(x => x.UserId == updateSingleQuizSession.UserId);
 
 			if (quizSession == null || !quizSession.UserId.Equals(updateSingleQuizSession.UserId))
             {
@@ -196,6 +197,21 @@ namespace Project_Quizz_API.Controllers
                 return Unauthorized();
             }
 
+            if(matchOverview == null)
+            {
+                var newMatchOverview = new Quiz_Match_Overview_User
+                {
+                    UserId = updateSingleQuizSession.UserId,
+                };
+
+                _context.Quiz_Match_Overview_Users.Add(newMatchOverview);
+                matchOverview = newMatchOverview;
+                _context.SaveChanges();
+            }
+
+            var correctAnswerCount = _context.Quiz_Question_Answers.Where(x => x.QuestionId == updateSingleQuizSession.QuestionId && x.IsCorrectAnswer == true).Count();
+            var correctAnswerFromUserCount = 0;
+
 			foreach (var answer in answersFromDb)
 			{
 				if (answer == null || answer.QuestionId != updateSingleQuizSession.QuestionId)
@@ -205,7 +221,7 @@ namespace Project_Quizz_API.Controllers
 
 				if (answer.IsCorrectAnswer)
 				{
-					quizSession.Score += 5;
+                    correctAnswerFromUserCount++;
 				}
 
 				var newAnswer = new Single_Given_Answer_Attepmt
@@ -217,6 +233,11 @@ namespace Project_Quizz_API.Controllers
 				_context.Single_Given_Answer_Attepmts.Add(newAnswer);
 			}
 
+            if (correctAnswerCount == correctAnswerFromUserCount)
+            {
+                quizSession.Score += 5;
+            }
+
 			attempt.AnswerDate = DateTime.Now;
             quizSession.QuestionCount -= 1;
 
@@ -225,6 +246,23 @@ namespace Project_Quizz_API.Controllers
             if(quizSession.QuestionCount == 0)
             {
                 quizSession.QuizCompleted = true;
+                matchOverview.TotalPointsSingle += quizSession.Score;
+                matchOverview.TotalPoints += quizSession.Score;
+                matchOverview.TotalSingleGamesCount++;
+
+                if(quizSession.Score >= 20)
+                {
+                    matchOverview.SingleGoldCount++;
+                }
+                else if (quizSession.Score >= 10 && quizSession.Score <20)
+                {
+                    matchOverview.SingleSilverCount++;
+                } 
+                else
+                {
+                    matchOverview.SingleBronzeCount++;
+                }
+
                 _context.SaveChanges();
                 return Accepted();
             }
