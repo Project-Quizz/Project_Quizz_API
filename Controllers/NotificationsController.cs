@@ -17,10 +17,12 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Give the count of open multiplayer games
+        /// To get a count of open multiplayer games
         /// </summary>
         /// <param name="userId">Id of the user</param>
-        /// <returns></returns>
+        /// <returns>Return int as open multiplayer games</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
         [HttpGet]
         [Route("GetOpenMultiplayerNotifications")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -40,10 +42,12 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Give the count of open singleplayer games
+        /// To get a count of open singleplayer games
         /// </summary>
         /// <param name="userId">Id of the user</param>
-        /// <returns></returns>
+        /// <returns>Returns int as open singleplayer games</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
         [HttpGet]
         [Route("GetOpenSingleplayerNotifications")]
         [ProducesResponseType(StatusCodes.Status200OK)]

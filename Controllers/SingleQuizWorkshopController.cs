@@ -21,13 +21,18 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Return a question for specific single quiz with teh answers
+        /// To get a question from a quiz session.
         /// </summary>
-        /// <param name="quizId">The id of the quiz how needs questions</param>
-        /// <param name="userId">The id of the user of the quiz</param>
-        /// <returns></returns>
+        /// <param name="quizId">The ID of the quiz that requires the questions.</param>
+        /// <param name="userId">The ID of the user of the quiz.</param>
+        /// <returns>An IActionResult that contains either a BadRequest, NotFound or Ok response.
+        /// In the case of an OK response, a DTO is returned with the question and its answers.</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
+        /// <response code="204"></response>
         [HttpGet]
         [Route("GetQuestionFromQuizSession")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetQuestionFromQuizSession(int quizId, string userId)
@@ -80,13 +85,17 @@ namespace Project_Quizz_API.Controllers
 		}
 
         /// <summary>
-        /// Return the result of a quiz session
+        /// To get the result of a single quiz from specific user.
         /// </summary>
         /// <param name="quizId">The quiz id of the needed result</param>
         /// <param name="userId">The user id of the quiz session how need the result</param>
-        /// <returns></returns>
+        /// <returns>The result set with Score, the QuestionCount and the information if quiz is complete.</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
+        /// <response code="404"></response>
         [HttpGet]
         [Route("GetResultFromSingleQuiz")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetResultFromSingleQuiz(int quizId, string userId)
@@ -120,10 +129,12 @@ namespace Project_Quizz_API.Controllers
 		}
 
         /// <summary>
-        /// Overview of all singlequizzes from user
+        /// To get all single quizzes from a specific user.
         /// </summary>
         /// <param name="userId">Id from user</param>
-        /// <returns></returns>
+        /// <returns>Return the set of all single quizzes from a user</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
         [HttpGet]
         [Route("GetSingleQuizzesFromUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -131,12 +142,12 @@ namespace Project_Quizz_API.Controllers
         public IActionResult GetSingleQuizzesFromUser (string userId)
         {
             var result = new List<GetSingleQuizzesFromUserDto>();
-            var quizzesFromPlayer = _context.Single_Quizzes.Where(x => x.UserId == userId).ToList();
             var categories = _context.Quiz_Categories.ToList();
 
             try
             {
-                foreach(var singleSession in quizzesFromPlayer)
+                var quizzesFromPlayer = _context.Single_Quizzes.Where(x => x.UserId == userId).ToList();
+                foreach (var singleSession in quizzesFromPlayer)
                 {
                     var categorieId = singleSession.QuizCategorieId;
 
@@ -276,6 +287,8 @@ namespace Project_Quizz_API.Controllers
         /// <param name="userId">The Id from User who will create a single quiz</param>
         /// <param name="categorieId">The Id of the Categorie of the Single Quiz</param>
         /// <returns>Id of created single quiz</returns>
+        /// <response code="201"></response>
+        /// <response code="400"></response>
         [HttpPost]
         [Route("CreateSingleQuizSession")]
         [ProducesResponseType(StatusCodes.Status201Created)]

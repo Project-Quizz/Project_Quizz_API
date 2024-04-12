@@ -21,62 +21,85 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Return categorie with given Id
+        /// To get a Categorie by Id
         /// </summary>
         /// <param name="id">Id of the Categorie to be returned</param>
-        /// <returns></returns>
+        /// <returns>Returns the QuizCategorieDto</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
+        /// <response code="404"></response>
         [HttpGet]
         [Route("GetCategorie")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetCategorie(int id)
         {
-            var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == id);
-
-            if (categorie == null)
+            try
             {
-                return NotFound($"Categorie with Id {id} not Found");
-            }
+                var categorie = _context.Quiz_Categories.FirstOrDefault(x => x.Id == id);
 
-            QuizCategorieDto quizCategorieDto = new QuizCategorieDto
-            {
-                CategorieId = categorie.Id,
-                Name = categorie.Name,
-            };
+                if (categorie == null)
+                {
+                    return NotFound($"Categorie with Id {id} not Found");
+                }
 
-            return Ok(quizCategorieDto);
-        }
-
-        /// <summary>
-        /// Return all categories in DB
-        /// </summary>
-        /// <returns>Return all categories as List</returns>
-        [HttpGet]
-        [Route("GetAllCategories")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAllCategories()
-        {
-            var categoriesInDb = _context.Quiz_Categories.ToList();
-
-            var allCategories = new List<QuizCategorieDto>();
-
-            foreach (var categorie in categoriesInDb)
-            {
-                allCategories.Add(new QuizCategorieDto
+                QuizCategorieDto quizCategorieDto = new QuizCategorieDto
                 {
                     CategorieId = categorie.Id,
                     Name = categorie.Name,
-                });
-            };
+                };
 
-            return Ok(allCategories);
+                return Ok(quizCategorieDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// To get all categories as list
+        /// </summary>
+        /// <returns>Return all categories as List</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
+        [HttpGet]
+        [Route("GetAllCategories")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetAllCategories()
+        {
+            try
+            {
+                var categoriesInDb = _context.Quiz_Categories.ToList();
+
+                var allCategories = new List<QuizCategorieDto>();
+
+                foreach (var categorie in categoriesInDb)
+                {
+                    allCategories.Add(new QuizCategorieDto
+                    {
+                        CategorieId = categorie.Id,
+                        Name = categorie.Name,
+                    });
+                };
+
+                return Ok(allCategories);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
         /// Create categorie with given name
         /// </summary>
         /// <param name="name">Name of the categorie to be create</param>
-        /// <returns></returns>
+        /// <returns>The created categorie id</returns>
+        /// <response code="201"></response>
+        /// <response code="400"></response>
         [HttpPost]
         [Route("CreateQuizCategorie")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -111,32 +134,43 @@ namespace Project_Quizz_API.Controllers
         /// </summary>
         /// <param name="id">Id from categorie to be deleted</param>
         /// <returns></returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
+        /// <response code="404"></response>
         [HttpDelete]
         [Route("DeleteQuizCategorie")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteQuizCategorie(int id)
         {
-            if (id == 1)
+            try
             {
-                return BadRequest($"Id {id} cannot be deleted due to development settings");
-            }
-            var categorieFromDb = _context.Quiz_Categories.FirstOrDefault(x => x.Id == id);
+                if (id == 1)
+                {
+                    return BadRequest($"Id {id} cannot be deleted due to development settings");
+                }
+                var categorieFromDb = _context.Quiz_Categories.FirstOrDefault(x => x.Id == id);
 
-            if (categorieFromDb == null)
+                if (categorieFromDb == null)
+                {
+                    return NotFound($"Categorie with Id {id} not Found");
+                }
+
+                if (CategogieWorkshopControllerValidators.CategorieIsInUse(id, _context))
+                {
+                    return BadRequest($"Categorie with Id {id} is in use");
+                }
+
+                _context.Remove(categorieFromDb);
+                _context.SaveChanges();
+
+                return Ok($"Categorie with Id {id} deleted!");
+            }
+            catch (Exception ex)
             {
-                return NotFound($"Categorie with Id {id} not Found");
+                return BadRequest(ex.Message);
             }
-
-            if (CategogieWorkshopControllerValidators.CategorieIsInUse(id, _context))
-            {
-                return BadRequest($"Categorie with Id {id} is in use");
-            }
-
-            _context.Remove(categorieFromDb);
-            _context.SaveChanges();
-
-            return Ok($"Categorie with Id {id} deleted!");
         }
 
 
