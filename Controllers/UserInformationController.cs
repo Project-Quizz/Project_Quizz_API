@@ -73,7 +73,7 @@ namespace Project_Quizz_API.Controllers
                     var userData = new HighscoreDataDto
                     {
                         UserId = user.UserId,
-                        TotalGames = totalGames,
+                        TotalGames = totalGames,    
                         TotalMultiGames = user.TotalMultiGamesCount,
                         TotalSingleGames = user.TotalSingleGamesCount,
                         TotalPointWorth = GetPointWorth(user.TotalPoints, totalGames),
@@ -92,6 +92,12 @@ namespace Project_Quizz_API.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="totalPoints"></param>
+        /// <param name="playCount"></param>
+        /// <returns></returns>
         private int GetPointWorth(int totalPoints, int playCount)
         {
             if (playCount == 0)
