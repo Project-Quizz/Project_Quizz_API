@@ -50,7 +50,7 @@ namespace Project_Quizz_API.Controllers
         /// <summary>
         /// Return all categories in DB
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return all categories as List</returns>
         [HttpGet]
         [Route("GetAllCategories")]
         [ProducesResponseType(StatusCodes.Status200OK)]

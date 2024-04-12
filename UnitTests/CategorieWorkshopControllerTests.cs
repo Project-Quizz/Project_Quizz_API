@@ -23,6 +23,10 @@ namespace Project_Quizz_API.UnitTests
                 .Options;
             _context = new ApplicationDbContext(options);
 
+            _context.Database.EnsureDeleted();
+
+            _context.Database.EnsureCreated();
+
             _controller = new CategorieWorkshopController(_context);
 
             string categorieName = "Vorhanden";
@@ -82,6 +86,39 @@ namespace Project_Quizz_API.UnitTests
             var result = _controller.GetAllCategories() as OkObjectResult;
 
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+        }
+
+        [Test]
+        public void CreateQuizCategorie_EmptyName()
+        {
+            string emptyCategorieName = "";
+
+            var result = _controller.CreateQuizCategorie(emptyCategorieName) as BadRequestObjectResult;
+
+            Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+            Assert.That(result.Value, Is.EqualTo("Categorie name cant be null or empty"));
+        }
+
+        [Test]
+        public void DeleteQuizCategorie_NonExistentCategory()
+        {
+            int nonExistentCategorieId = 9999;
+
+            var result = _controller.DeleteQuizCategorie(nonExistentCategorieId) as NotFoundObjectResult;
+
+            Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
+            Assert.That(result.Value, Is.EqualTo($"Categorie with Id {nonExistentCategorieId} not Found"));
+        }
+
+        [Test]
+        public void DeleteQuizCategorie_CriticalCategory()
+        {
+            int criticalCategorieId = 1;
+
+            var result = _controller.DeleteQuizCategorie(criticalCategorieId) as BadRequestObjectResult;
+
+            Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+            Assert.That(result.Value, Is.EqualTo($"Id {criticalCategorieId} cannot be deleted due to development settings"));
         }
     }
 }

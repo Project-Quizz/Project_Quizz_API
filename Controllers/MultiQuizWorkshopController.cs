@@ -296,7 +296,7 @@ namespace Project_Quizz_API.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult CreateMultiQuizSession(InitMultiplayerSessionDto initMultiSession)
 		{
-			if (initMultiSession.UserOne == null)
+			if (initMultiSession.UserOne == null || initMultiSession.UserTwo == null)
 			{
 				return BadRequest("UserId must not be null");
 			}

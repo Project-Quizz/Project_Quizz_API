@@ -24,6 +24,10 @@ namespace Project_Quizz_API.UnitTests
                 .Options;
             _context = new ApplicationDbContext(options);
 
+            _context.Database.EnsureDeleted();
+
+            _context.Database.EnsureCreated();
+
             _controller = new QuestionWorkshopController(_context);
         }
 
@@ -75,7 +79,7 @@ namespace Project_Quizz_API.UnitTests
             return newQuestionDto;
         }
 
-        [Test, Order(1)]
+        [Test]
         public void CreateQuestion_AddQuestionWithAnswersToDb()
         {
             //Arrange
@@ -169,6 +173,7 @@ namespace Project_Quizz_API.UnitTests
         public void GetQuestion_WhenQuestionExists_ReturnsOkResultWithQuestion()
         {
             // Arrange
+            _controller.CreateQuestion(CreateQuizQuestionDto());
             int testQuestionId = 1;
 
             // Act
@@ -195,6 +200,7 @@ namespace Project_Quizz_API.UnitTests
         [Test, Order(3)]
         public void UpdateQuestion_WhenQuestionExists_ReturnsOkObjectResult()
         {
+            _controller.CreateQuestion(CreateQuizQuestionDto());
             var oldQuestionResult = _controller.GetQuestion(1) as OkObjectResult;
             var oldQuestion = oldQuestionResult.Value as QuizQuestionDto;
 
