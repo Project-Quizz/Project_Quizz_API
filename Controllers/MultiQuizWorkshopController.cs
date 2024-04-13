@@ -20,12 +20,14 @@ namespace Project_Quizz_API.Controllers
 			_context = context;            
         }
 
-		/// <summary>
-		/// Overview of all multiquizzes from user
-		/// </summary>
-		/// <param name="userId">Id from user</param>
-		/// <returns></returns>
-		[HttpGet]
+        /// <summary>
+        /// Overview of all multiquizzes from user
+        /// </summary>
+        /// <param name="userId">Id from user</param>
+        /// <returns>Return GetMultiQuizzesFromUserDto as list with all multiplayer games from user</returns>
+		/// <response code="200">Return GetMultiQuizzesFromUserDto as list with all multiplayer games from user</response>
+		/// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
+        [HttpGet]
 		[Route("GetMultiQuizzesFromUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -66,14 +68,20 @@ namespace Project_Quizz_API.Controllers
 			return Ok(result);
 		}
 
-		/// <summary>
-		/// Returns next question for multiplayer quiz for specific user
-		/// </summary>
-		/// <param name="quizId">Multiplayer quiz id</param>
-		/// <param name="userId">Id from user</param>
-		/// <returns></returns>
-		[HttpGet]
+        /// <summary>
+        /// Get next question for multiplayer quiz for specific user
+        /// </summary>
+        /// <param name="quizId">Multiplayer quiz id</param>
+        /// <param name="userId">Id from user</param>
+        /// <returns>Return QuizQuestionForMultiQuizDto as next question when quiz ist not complete</returns>
+		/// <response code="200">Return QuizQuestionForMultiQuizDto as next question when quiz ist not complete</response>
+		/// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
+		/// <response code="404">If the request is invalid, for example if the data is incorrect or false</response>
+        [HttpGet]
 		[Route("GetQuestionFromMultiQuizSession")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult GetQuestionFromMultiQuizSession(int quizId, string userId)
 		{
 			var playerFromMultiQuiz = _context.Multi_Quiz_Players.FirstOrDefault(x => x.UserId == userId && x.MultiQuizId == quizId);
@@ -92,40 +100,49 @@ namespace Project_Quizz_API.Controllers
 				return BadRequest();
 			}
 
-			var listQuestionsFromQuiz = _context.Multi_Quiz_Attempts.Where(x => x.MultiQuizId == quizId && x.MultiQuizPlayerId == playerFromMultiQuiz.Id).ToList();
-			var questionId = listQuestionsFromQuiz.Find(x => x.AnswerDate == null);
-			var questionForQuiz = _context.Quiz_Questions.FirstOrDefault(x => x.Id == questionId.AskedQuestionId);
-
-			var question = new QuizQuestionForMultiQuizDto
+			try
 			{
-				QuestionId = questionForQuiz.Id,
-				QuizId = quizId,
-				QuestionCount = playerFromMultiQuiz.QuestionCount,
-				QuestionText = questionForQuiz.QuestionText,
-				Answers = new List<QuizAnswersDto>()
-			};
+                var listQuestionsFromQuiz = _context.Multi_Quiz_Attempts.Where(x => x.MultiQuizId == quizId && x.MultiQuizPlayerId == playerFromMultiQuiz.Id).ToList();
+                var questionId = listQuestionsFromQuiz.Find(x => x.AnswerDate == null);
+                var questionForQuiz = _context.Quiz_Questions.FirstOrDefault(x => x.Id == questionId.AskedQuestionId);
 
-			var answers = _context.Quiz_Question_Answers.Where(x => x.QuestionId == question.QuestionId).ToList();
+                var question = new QuizQuestionForMultiQuizDto
+                {
+                    QuestionId = questionForQuiz.Id,
+                    QuizId = quizId,
+                    QuestionCount = playerFromMultiQuiz.QuestionCount,
+                    QuestionText = questionForQuiz.QuestionText,
+                    Answers = new List<QuizAnswersDto>()
+                };
 
-			foreach (var answer in answers)
+                var answers = _context.Quiz_Question_Answers.Where(x => x.QuestionId == question.QuestionId).ToList();
+
+                foreach (var answer in answers)
+                {
+                    question.Answers.Add(new QuizAnswersDto
+                    {
+                        Id = answer.Id,
+                        AnswerText = answer.AnswerText,
+                        IsCorrectAnswer = answer.IsCorrectAnswer,
+                    });
+                }
+
+                return Ok(question);
+            }
+			catch (Exception ex)
 			{
-				question.Answers.Add(new QuizAnswersDto
-				{
-					Id = answer.Id,
-					AnswerText = answer.AnswerText,
-					IsCorrectAnswer = answer.IsCorrectAnswer,
-				});
-			}
-
-			return Ok(question);
+                return BadRequest(ex.Message);
+            }
 		}
 
         /// <summary>
-        /// Return the Result of a multi quizz session from one specific user
+        /// Get the Result of a multi quizz session from one specific user
         /// </summary>
         /// <param name="quizId">Id of the quiz</param>
         /// <param name="userId">Id of the user</param>
-        /// <returns></returns>
+        /// <returns>Return ResultMultiQuizDto as result set of an multiplayer quiz from user</returns>
+        /// <response code="200">Return ResultMultiQuizDto as result set of an multiplayer quiz from user</response>
+        /// <response code="404">If the request is invalid, for example if the data is incorrect or false</response>
         [HttpGet]
         [Route("GetResultFromMultiQuiz")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -168,10 +185,10 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// Update of an existing quiz session.
+        /// Update of an existing multiplayer quiz session.
         /// </summary>
-        /// <param name="updateMultiQuizSession"></param>
-        /// <returns></returns>
+        /// <param name="updateMultiQuizSession">UpdateMultiQuizSessionDto</param>
+        /// <returns>Returns only StatusCode</returns>
         /// <response code="200">When the quiz session has been successfully updated</response>
         /// <response code="202">When the quiz session is complete and all questions have been answered</response>
         /// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
@@ -287,8 +304,11 @@ namespace Project_Quizz_API.Controllers
         /// <summary>
         /// Create a multi player quiz up to two user (for now)
         /// </summary>
-        /// <param name="initMultiSession"></param>
+        /// <param name="initMultiSession">InitMultiplayerSessionDto</param>
         /// <returns>Id of created multi quiz</returns>
+        /// <response code="201">Return Id of created multi quiz</response>
+        /// <response code="400">If the request is invalid, for example if the data is incorrect or false</response>
+        /// <response code="404">If the request is invalid, for example if the data is incorrect or false</response>
         [HttpPost]
 		[Route("CreateMultiQuizSession")]
 		[ProducesResponseType(StatusCodes.Status201Created)]

@@ -26,7 +26,10 @@ namespace Project_Quizz_API.Controllers
         /// Get user statistics of quiz sessions
         /// </summary>
         /// <param name="userId">User id from user</param>
-        /// <returns></returns>
+        /// <returns>Return QuizMatchOverviewUserDto with all results</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
+        /// <response code="404"></response>
         [HttpGet]
         [Route("GetUserProgressInformation")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -54,7 +57,9 @@ namespace Project_Quizz_API.Controllers
         /// <summary>
         /// Get highscore data of all users
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns HighscoreDataDto as list with all users and results</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
         [HttpGet]
         [Route("GetHigscroeData")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -93,11 +98,11 @@ namespace Project_Quizz_API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Calculate the point worth of a user
         /// </summary>
-        /// <param name="totalPoints"></param>
-        /// <param name="playCount"></param>
-        /// <returns></returns>
+        /// <param name="totalPoints">Total points of a user</param>
+        /// <param name="playCount">Total games of a user</param>
+        /// <returns>Return the point worth from a user</returns>
         private int GetPointWorth(int totalPoints, int playCount)
         {
             if (playCount == 0)
