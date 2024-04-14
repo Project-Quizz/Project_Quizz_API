@@ -2,6 +2,9 @@
 
 namespace Project_Quizz_API.Models
 {
+	/// <summary>
+	/// Multi given answer attempt. It contains the id of the multi quiz attempt and the id of the quiz question answer.
+	/// </summary>
 	public class Multi_Given_Answer_Attempt
 	{
 		public int Id { get; set; }

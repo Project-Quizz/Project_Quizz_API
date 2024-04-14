@@ -4,6 +4,9 @@ using Project_Quizz_API.Services;
 
 namespace Project_Quizz_API.Controllers
 {
+    /// <summary>
+    /// Notifications controller. It contains the endpoints to get the count of open multiplayer and singleplayer games.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiKeyAuthoriziation]

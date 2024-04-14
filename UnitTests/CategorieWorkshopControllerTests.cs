@@ -9,12 +9,18 @@ using Project_Quizz_API.Models.DTOs;
 
 namespace Project_Quizz_API.UnitTests
 {
+    /// <summary>
+    /// Unti tests for the CategorieWorkshopController.
+    /// </summary>
     [TestFixture]
     public class CategorieWorkshopControllerTests
     {
         private CategorieWorkshopController _controller;
         private ApplicationDbContext _context;
 
+        /// <summary>
+        /// Setup the in memory database.
+        /// </summary>
         [SetUp]
         public void SetupInMemory()
         {
@@ -37,6 +43,9 @@ namespace Project_Quizz_API.UnitTests
             _controller.CreateQuizCategorie(categorieName);
         }
 
+        /// <summary>
+        /// Test the CreateQuizCategorie method.
+        /// </summary>
         [Test]
         public void CreateQuizCategorie_AddCategorieToDb()
         {
@@ -49,6 +58,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsNotNull(categorie);
         }
 
+        /// <summary>
+        /// Test the CreateQuizCategorie method with an existing name.
+        /// </summary>
         [Test]
         public void CreateQuizCategorie_WithExistingName()
         {
@@ -60,6 +72,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.Value, Is.EqualTo("A categorie with the same name already exists"));
         }
 
+        /// <summary>
+        /// Test the GetCategorie method with an existing id.
+        /// </summary>
         [Test]
         public void GetQuizCategorie_WithExistingId()
         {
@@ -70,6 +85,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
         }
 
+        /// <summary>
+        /// Test the GetCategorie method with a non-existing id.
+        /// </summary>
         [Test]
         public void GetQuizCategorie_WithNonExistingId()
         {
@@ -80,6 +98,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         }
 
+        /// <summary>
+        /// Test the GetAllCategories method.
+        /// </summary>
         [Test]
         public void GetQuizCategories_WithOkResponse()
         {
@@ -88,6 +109,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
         }
 
+        /// <summary>
+        /// Test the DeleteQuizCategorie method with an existing id.
+        /// </summary>
         [Test]
         public void CreateQuizCategorie_EmptyName()
         {
@@ -99,6 +123,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.Value, Is.EqualTo("Categorie name cant be null or empty"));
         }
 
+        /// <summary>
+        /// Test the DeleteQuizCategorie method with an existing id.
+        /// </summary>
         [Test]
         public void DeleteQuizCategorie_NonExistentCategory()
         {
@@ -110,6 +137,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.Value, Is.EqualTo($"Categorie with Id {nonExistentCategorieId} not Found"));
         }
 
+        /// <summary>
+        /// Test the DeleteQuizCategorie method with an existing id.
+        /// </summary>
         [Test]
         public void DeleteQuizCategorie_CriticalCategory()
         {

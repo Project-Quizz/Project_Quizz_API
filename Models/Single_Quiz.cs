@@ -3,8 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices.Marshalling;
 
+
 namespace Project_Quizz_API.Models
 {
+    /// <summary>
+    /// Single quiz model. It contains the id of the user, the score of the quiz, the date of the quiz, the id of the quiz category and the number of questions.
+    /// </summary>
     public class Single_Quiz
     {
         public int Id { get; set; }

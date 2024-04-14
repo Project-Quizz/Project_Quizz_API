@@ -2,6 +2,9 @@
 
 namespace Project_Quizz_API.Models
 {
+	/// <summary>
+	/// Single given answer attempt. It contains the id of the single quiz attempt and the id of the quiz question answer.
+	/// </summary>
 	public class Single_Given_Answer_Attepmt
 	{
 		public int Id { get; set; }

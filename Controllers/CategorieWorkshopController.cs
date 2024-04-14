@@ -8,6 +8,9 @@ using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
+    /// <summary>
+    /// Categorie workshop controller. It contains the endpoints to get, create and delete categories.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiKeyAuthoriziation]
@@ -133,7 +136,7 @@ namespace Project_Quizz_API.Controllers
         /// Delete categorie from db
         /// </summary>
         /// <param name="id">Id from categorie to be deleted</param>
-        /// <returns></returns>
+        /// <returns>Return StatusCode</returns>
         /// <response code="200"></response>
         /// <response code="400"></response>
         /// <response code="404"></response>

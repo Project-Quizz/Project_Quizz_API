@@ -8,6 +8,9 @@ using Project_Quizz_API.Services;
 
 namespace Project_Quizz_API.Controllers
 {
+    /// <summary>
+    /// User information controller. It contains the endpoints to get user statistics of quiz sessions and highscore data of all users.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiKeyAuthoriziation]

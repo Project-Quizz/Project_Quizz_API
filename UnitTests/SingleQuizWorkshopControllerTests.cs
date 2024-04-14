@@ -9,12 +9,18 @@ using Project_Quizz_API.Models.DTOs;
 
 namespace Project_Quizz_API.UnitTests
 {
+    /// <summary>
+    /// Untittests for the SingleQuizWorkshopController.
+    /// </summary>
     [TestFixture]
     public class SingleQuizWorkshopControllerTests
     {
         private SingleQuizWorkshopController _controller;
         private ApplicationDbContext _context;
 
+        /// <summary>
+        /// Setup the in memory database.
+        /// </summary>
         [SetUp]
         public void SetupInMemory()
         {
@@ -30,6 +36,10 @@ namespace Project_Quizz_API.UnitTests
             _controller = new SingleQuizWorkshopController(_context);
         }
 
+        /// <summary>
+        /// Create and save a test quiz session.
+        /// </summary>
+        /// <returns>Return the created Single_Quiz</returns>
         private Single_Quiz CreateAndSaveTestQuizSession()
         {
             var testQuiz = new Single_Quiz
@@ -44,24 +54,27 @@ namespace Project_Quizz_API.UnitTests
             return testQuiz;
         }
 
-        private void CreateAndSaveTestQuizzesForUser(string userId, int numberOfQuizzes)
-        {
-            Random random = new Random();
-            for (int i = 0; i < numberOfQuizzes; i++)
-            {
-                var quiz = new Single_Quiz
-                {
-                    UserId = userId,
-                    Score = i,
-                    CreateDate = DateTime.Now,
-                    QuizCategorieId = 1,
-                    QuizCompleted = random.Next(2) == 1
-                };
-                _context.Single_Quizzes.Add(quiz);
-            }
-            _context.SaveChanges();
-        }
+        //private void CreateAndSaveTestQuizzesForUser(string userId, int numberOfQuizzes)
+        //{
+        //    Random random = new Random();
+        //    for (int i = 0; i < numberOfQuizzes; i++)
+        //    {
+        //        var quiz = new Single_Quiz
+        //        {
+        //            UserId = userId,
+        //            Score = i,
+        //            CreateDate = DateTime.Now,
+        //            QuizCategorieId = 1,
+        //            QuizCompleted = random.Next(2) == 1
+        //        };
+        //        _context.Single_Quizzes.Add(quiz);
+        //    }
+        //    _context.SaveChanges();
+        //}
 
+        /// <summary>
+        /// Test if the GetSingleQuizzesFromUser method returns the correct quizzes for a user.
+        /// </summary>
         [Test]
         public void CreateSingleQuizSession_Successful_WithValidUserId()
         {
@@ -92,6 +105,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsNotNull(result.Value);
         }
 
+        /// <summary>
+        /// Test if the GetSingleQuizzesFromUser method returns the correct quizzes for a user.
+        /// </summary>
         [Test]
         public void CreateSingleQuizSession_Fails_WithNullUserId()
         {
@@ -108,6 +124,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.AreEqual("UserId must not be null", result.Value);
         }
 
+        /// <summary>
+        /// Test if the GetSingleQuizzesFromUser method returns the correct quizzes for a user.
+        /// </summary>
         [Test]
         public void GetQuestionFromQuizSession_ReturnsQuestionForExistingQuiz()
         {
@@ -129,6 +148,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.AreEqual(question.QuestionText, dto.QuestionText);
         }
 
+        /// <summary>
+        /// Test if the GetSingleQuizzesFromUser method returns the correct quizzes for a user.
+        /// </summary>
         [Test]
         public void GetResultFromSingleQuiz_ReturnsCorrectResults()
         {
@@ -148,6 +170,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsTrue(dto.QuizCompleted);
         }
 
+        /// <summary>
+        /// Test if the GetSingleQuizzesFromUser method returns the correct quizzes for a user.
+        /// </summary>
         [Test]
         public void UpdateSingleQuizSession_UpdatesSessionSuccessfully()
         {

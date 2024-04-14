@@ -2,6 +2,9 @@
 
 namespace Project_Quizz_API.Models
 {
+    /// <summary>
+    /// Multi quiz player. It contains the id of the quiz, the user id, the score, the question count and if the quiz is complete.
+    /// </summary>
     public class Multi_Quiz_Player
     {
         public int Id { get; set; }

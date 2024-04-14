@@ -9,12 +9,18 @@ using Project_Quizz_API.Models.DTOs;
 
 namespace Project_Quizz_API.UnitTests
 {
+    /// <summary>
+    /// Tests for the MultiQuizWorkshopController.
+    /// </summary>
     [TestFixture]
     public class MultiQuizWorkshopControllerTests
     {
         private MultiQuizWorkshopController _controller;
         private ApplicationDbContext _context;
 
+        /// <summary>
+        /// Setup the in memory database.
+        /// </summary>
         [SetUp]
         public void SetupInMemory()
         {
@@ -30,6 +36,9 @@ namespace Project_Quizz_API.UnitTests
             _controller = new MultiQuizWorkshopController(_context);
         }
 
+        /// <summary>
+        /// Add data to the in memory database.
+        /// </summary>
         [SetUp]
         public void AddDataToInMemory()
         {
@@ -42,6 +51,9 @@ namespace Project_Quizz_API.UnitTests
             _context.SaveChanges();
         }   
 
+        /// <summary>
+        /// Test the CreateMultiQuiz method.
+        /// </summary>
         [Test, Order(1)]
         public void CreateMultiQuiz_ReturnsOk()
         {
@@ -59,6 +71,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsInstanceOf<CreatedAtActionResult>(result);
         }
 
+        /// <summary>
+        /// Test the CreateMultiQuiz method.
+        /// </summary>
         [Test]
         public void CreateMultiQuiz_ReturnsBadRequest()
         {
@@ -75,6 +90,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsInstanceOf<BadRequestObjectResult>(result);
         }
 
+        /// <summary>
+        /// Test the CreateMultiQuiz method.
+        /// </summary>
         [Test]
         public void CreateMultiQuiz_ReturnsNotFound()
         {
@@ -92,6 +110,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsInstanceOf<NotFoundObjectResult>(result);
         }
 
+        /// <summary>
+        /// Test the GetMultiQuiz method.
+        /// </summary>
         [Test, Order(3)]
         public void GetMultiQuizzesFromUser_ReturnsOk()
         {
@@ -102,6 +123,9 @@ namespace Project_Quizz_API.UnitTests
             ClassicAssert.IsInstanceOf<OkObjectResult>(result);
         }
 
+        /// <summary>
+        /// Test the GetMultiQuiz method.
+        /// </summary>
         [Test]
         public void GetMultiQuizzesFromUser_ReturnsOkWhenUserIdNotHaveMultiGames()
         {

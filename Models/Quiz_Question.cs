@@ -4,6 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Project_Quizz_API.Models
 {
+    /// <summary>
+    /// Quiz question. It contains the id of the question, the question text, the user id and the id of the quiz category.
+    /// </summary>
     public class Quiz_Question
     {
         public int Id { get; set; }

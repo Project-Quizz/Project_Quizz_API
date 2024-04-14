@@ -8,6 +8,9 @@ using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
+    /// <summary>
+    /// Multi quiz workshop controller. It contains all endpoints for the multiplayer quiz.
+    /// </summary>
 	[Route("api/[controller]")]
 	[ApiController]
 	[ApiKeyAuthoriziation]

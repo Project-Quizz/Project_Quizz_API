@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Project_Quizz_API.Services
 {
+    /// <summary>
+    /// Api key authoriziation. It checks if the request has the correct api key.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class ApiKeyAuthoriziation : Attribute, IAsyncActionFilter
     {

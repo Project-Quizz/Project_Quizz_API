@@ -2,6 +2,9 @@
 
 namespace Project_Quizz_API.Models
 {
+	/// <summary>
+	/// Quiz question feedback. It contains the id of the question, the feedback, the user id and the date of the feedback.
+	/// </summary>
 	public class Quiz_Question_Feedback
 	{
 		public int Id { get; set; }

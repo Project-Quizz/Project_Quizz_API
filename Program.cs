@@ -5,16 +5,18 @@ using Project_Quizz_API.Services;
 using System.Reflection;
 using System.Text;
 
+// Create a web application builder with the specified command-line arguments
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// Configure Swagger for API documentation
 builder.Services.AddSwaggerGen(options =>
 {
+    // Define the information for the API documentation
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v0.5",
@@ -22,23 +24,30 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for our Quiz Project"
     });
 
+    // Add a filter to apply the Api Key header to the Swagger documentation
     options.OperationFilter<SwaggerApiKeayHeader>();
+
+    // Add the XML comments to the Swagger documentation
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
+
+// Get the connection string from the configuration and add the DbContext to the service container
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Build the application
 var app = builder.Build();
 
+// Run the database migrations
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
 }
 
-//Swagger authentication
+// Add a middleware to handle authentication for the Swagger endpoint
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments("/swagger"))
@@ -73,13 +82,12 @@ app.Use(async (context, next) =>
 //    app.UseSwaggerUI();
 //}
 
+// Configure the HTTP request pipeline
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
+// Run the application
 app.Run();

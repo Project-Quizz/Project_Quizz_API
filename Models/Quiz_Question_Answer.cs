@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project_Quizz_API.Models
 {
+    /// <summary>
+    /// Quiz question answer. It contains the id of the question, the answer text and if the answer is correct.
+    /// </summary>
     public class Quiz_Question_Answer
     {
         public int Id { get; set; }

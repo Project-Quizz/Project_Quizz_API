@@ -8,6 +8,9 @@ using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
+    /// <summary>
+    /// Single quiz workshop controller. It contains the endpoints for the single quiz workshop.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiKeyAuthoriziation]

@@ -2,6 +2,10 @@
 
 namespace Project_Quizz_API.Models
 {
+    /// <summary>
+    /// Multi quiz. It contains the id of the quiz, the date of the creation, the number of questions, 
+    /// the id of the quiz category and the players and attempts of the quiz.
+    /// </summary>
     public class Multi_Quiz
     {
         public int Id { get; set; }

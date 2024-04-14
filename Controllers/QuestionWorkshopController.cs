@@ -11,6 +11,9 @@ using Project_Quizz_API.Validations;
 
 namespace Project_Quizz_API.Controllers
 {
+    /// <summary>
+    /// Question workshop controller. It contains all endpoints for creating, updating, deleting and getting questions and feedbacks.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiKeyAuthoriziation]

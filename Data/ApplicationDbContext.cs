@@ -5,6 +5,9 @@ using Project_Quizz_API.Models;
 
 namespace Project_Quizz_API.Data
 {
+	/// <summary>
+	/// Application db context. It contains all the tables of the database.
+	/// </summary>
 	public class ApplicationDbContext : IdentityDbContext
 	{
 		public virtual DbSet<Quiz_Question> Quiz_Questions { get; set; }
@@ -20,11 +23,19 @@ namespace Project_Quizz_API.Data
 		public virtual DbSet<Quiz_Question_Feedback> Quiz_Question_Feedbacks { get; set; }
 		public virtual DbSet<Quiz_Match_Overview_User> Quiz_Match_Overview_Users { get; set; }
 
+		/// <summary>
+		/// Constructor of the application db context.
+		/// </summary>
+		/// <param name="options"></param>
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
 		{
 		}
 
+		/// <summary>
+		/// On model creating. It sets the relationships between the tables.
+		/// </summary>
+		/// <param name="builder"></param>
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);

@@ -1,7 +1,17 @@
 ﻿namespace Project_Quizz_API.Validations
 {
+    /// <summary>
+    /// Generic validators.
+    /// </summary>
     public class GenericValidators
     {
+        /// <summary>
+        /// Check if the object is null or default.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">Object to check</param>
+        /// <param name="variableName">Variable name if necessary</param>
+        /// <returns></returns>
         public static IEnumerable<string> CheckNullOrDefault<T>(T obj, string variableName = null)
         {
             if (variableName == null)
@@ -24,6 +34,13 @@
             }
         }
 
+        /// <summary>
+        /// Check if the object exists in the database.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">Object to check</param>
+        /// <param name="variableName">Variable name if is necessary</param>
+        /// <returns></returns>
         public static IEnumerable<string> CheckIfObjectExist<T>(T obj, string variableName = null)
         {
             if (variableName == null)

@@ -10,12 +10,18 @@ using Project_Quizz_API.Models.DTOs;
 
 namespace Project_Quizz_API.UnitTests
 {
+    /// <summary>
+    /// Unit tests for the QuestionWorkshopController.
+    /// </summary>
     [TestFixture]
     public class QuestionWorkshopControllerTests
     {
         private QuestionWorkshopController _controller;
         private ApplicationDbContext _context;
 
+        /// <summary>
+        /// Setup the in memory database.
+        /// </summary>
         [SetUp]
         public void SetupInMemory()
         {
@@ -31,6 +37,10 @@ namespace Project_Quizz_API.UnitTests
             _controller = new QuestionWorkshopController(_context);
         }
 
+        /// <summary>
+        /// Create a new question dto.
+        /// </summary>
+        /// <returns>Retunr the created CreateQuizQuestionDto</returns>
         private CreateQuizQuestionDto CreateQuizQuestionDto()
         {
             var categorie = new Quiz_Categorie
@@ -79,6 +89,9 @@ namespace Project_Quizz_API.UnitTests
             return newQuestionDto;
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question with answers to the database.
+        /// </summary>
         [Test]
         public void CreateQuestion_AddQuestionWithAnswersToDb()
         {
@@ -92,6 +105,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status201Created));
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without answers to the database.
+        /// </summary>
         [Test]
         public void CreateQuestion_AddQuestionWithToFewAnswersToDb()
         {
@@ -128,6 +144,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without question text to the database.
+        /// </summary>
         [Test]
         public void CreateQuestion_AddQuestionWithoutQuestionTextToDb()
         {
@@ -169,6 +188,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without user id to the database.
+        /// </summary>
         [Test, Order(2)]
         public void GetQuestion_WhenQuestionExists_ReturnsOkResultWithQuestion()
         {
@@ -187,6 +209,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(question.Id, Is.EqualTo(testQuestionId));
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without user id to the database.
+        /// </summary>
         [Test]
         public void GetQuestion_WhenQuestionNotExists_ReturnsNotFoundResult()
         {
@@ -197,6 +222,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without user id to the database.
+        /// </summary>
         [Test, Order(3)]
         public void UpdateQuestion_WhenQuestionExists_ReturnsOkObjectResult()
         {
@@ -251,6 +279,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without user id to the database.
+        /// </summary>
         [Test]
         public void DeleteQuestion_WhenQuestionExists_ReturnOkObjectResult()
         {
@@ -271,6 +302,9 @@ namespace Project_Quizz_API.UnitTests
             Assert.That(validateResult.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         }
 
+        /// <summary>
+        /// Test if the CreateQuestion method adds a question without user id to the database.
+        /// </summary>
         [Test]
         public void DeleteQuestion_WhenQuestionNotExists_ReturnNotFoundResult()
         {
