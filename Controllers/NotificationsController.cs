@@ -32,6 +32,10 @@ namespace Project_Quizz_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetOpenMultiplayerNotifications(string userId)
         { 
+            if (userId == null)
+            {
+                return BadRequest();
+            }
             try
             {
                 var openMultiGames = _context.Multi_Quiz_Players.Where(x => x.UserId == userId && x.QuizComplete == false);
@@ -57,6 +61,10 @@ namespace Project_Quizz_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetOpenSingleplayerNotifications(string userId)
         {
+            if (userId == null)
+            {
+                return BadRequest();
+            }
             try
             {
                 var openSingleplayerGames = _context.Single_Quizzes.Where(x => x.UserId == userId && x.QuizCompleted == false);
