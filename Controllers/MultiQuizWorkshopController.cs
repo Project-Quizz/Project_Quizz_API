@@ -239,6 +239,7 @@ namespace Project_Quizz_API.Controllers
             }
 
             var correctAnswerCount = _context.Quiz_Question_Answers.Where(x => x.QuestionId == updateMultiQuizSession.QuestionId && x.IsCorrectAnswer == true).Count();
+            var givenAnswerCount = updateMultiQuizSession.GivenAnswerIds.Count();
             var correctAnswerFromUserCount = 0;
 
             foreach (var answer in answersFromDb)
@@ -262,7 +263,7 @@ namespace Project_Quizz_API.Controllers
 				_context.Multi_Given_Answer_Attempts.Add(newAnswer);
 			}
 
-            if (correctAnswerCount == correctAnswerFromUserCount)
+            if (correctAnswerCount == givenAnswerCount && correctAnswerCount == correctAnswerFromUserCount)
             {
                 quizSessionFromPlayer.Score += 5;
             }

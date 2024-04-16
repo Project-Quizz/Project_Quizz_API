@@ -224,6 +224,7 @@ namespace Project_Quizz_API.Controllers
             }
 
             var correctAnswerCount = _context.Quiz_Question_Answers.Where(x => x.QuestionId == updateSingleQuizSession.QuestionId && x.IsCorrectAnswer == true).Count();
+            var givenAnswerCount = updateSingleQuizSession.GivenAnswerIds.Count();   
             var correctAnswerFromUserCount = 0;
 
 			foreach (var answer in answersFromDb)
@@ -247,7 +248,7 @@ namespace Project_Quizz_API.Controllers
 				_context.Single_Given_Answer_Attepmts.Add(newAnswer);
 			}
 
-            if (correctAnswerCount == correctAnswerFromUserCount)
+            if (correctAnswerCount == givenAnswerCount && correctAnswerCount == correctAnswerFromUserCount)
             {
                 quizSession.Score += 5;
             }
@@ -298,12 +299,6 @@ namespace Project_Quizz_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateSingleQuizSession(string userId, int categorieId)
         {
-            //Muss entfernt werden wenn Kategorien implementiert sind
-            if (categorieId == 0)
-            {
-                categorieId = 1;
-            }
-
             if (userId == null)
             {
                 return BadRequest("UserId must not be null");
